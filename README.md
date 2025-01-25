@@ -1,0 +1,2 @@
+# cogito
+Ideas association visualizer.
