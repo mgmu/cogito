@@ -166,44 +166,6 @@ public class Node {
         this.entries.remove(index);
     }
 
-    /**
-     * Returns a hash code for this Node.
-     *
-     * The hash code of this Node is the result of the following calculation:
-     * this.title.hashCode() + this.entries.hashCode()
-     *
-     * @return A hash code for this Node.
-     */
-    @Override public int hashCode() {
-        return this.title.hashCode() + this.entries.hashCode();
-    }
-
-    /**
-     * Compares the specified object with this Node for equality.
-     *
-     * Returns true if and only if other is a Node, both Nodes have the same
-     * title, both entries list have the same size and all corresponding pairs
-     * of elements in the two entries list are equal.
-     *
-     * @param other An object to compare to this Node.
-     * @return True if this Node and other are equal.
-     */
-    @Override public boolean equals(Object other) {
-        if (other == this)
-            return true;
-        if (other == null || !other.getClass().equals(this.getClass()))
-            return false;
-        Node node = (Node)other;
-        if (!node.title.equals(this.title) ||
-                node.entries.size() != this.entries.size())
-            return false;
-        for (int i = 0; i < this.entries.size(); i++) {
-            if (!this.entries.get(i).equals(node.entries.get(i)))
-                return false;
-        }
-        return true;
-    }
-
     // Checks that newEntry length is in bounds and not null.
     private void checkEntryValidity(String newEntry) {
         checkStringValidity(newEntry, MIN_ENTRY_LEN, MAX_ENTRY_LEN,
