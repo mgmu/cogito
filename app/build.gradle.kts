@@ -26,7 +26,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass.set("cogito.App")
+    mainClass.set("cogito.Main")
 }
 
 tasks.named<Test>("test") {
