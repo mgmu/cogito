@@ -147,7 +147,7 @@ public class Node {
      * @throws IllegalArgumentException if newEntry has not a length greater
      *         than 0 and less or equal 500.
      */
-    public void addEntry(String newEntry) {
+    public void add(String newEntry) {
         checkEntryValidity(newEntry);
         this.entries.add(newEntry);
     }
@@ -160,7 +160,7 @@ public class Node {
      * @param index An integer greater than 0 and less than getEntries().size().
      * @throws IllegalArgumentException if index is out of bounds.
      */
-    public void removeEntry(int index) {
+    public void remove(int index) {
         if (index < 0 || index >= this.entries.size())
             throw new IllegalArgumentException("Invalid entry index");
         this.entries.remove(index);

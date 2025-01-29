@@ -183,31 +183,31 @@ class NodeTest {
         Node sut = new Node("test");
         List<String> entries = sut.getEntries();
         assertEquals(0, entries.size());
-        sut.addEntry("entry 1");
+        sut.add("entry 1");
         entries = sut.getEntries();
         assertEquals(1, entries.size());
     }
 
     @Test
-    void addEntryThrowsNPEIfNewEntryIsNull() {
+    void addThrowsNPEIfNewEntryIsNull() {
         Node sut = new Node("test");
         NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.addEntry(null));
+                () -> sut.add(null));
         assertEquals("Entry can not be null", npe.getMessage());
     }
 
     @Test
-    void addEntryThrowsIAEIfEntryIsEmpty() {
+    void addThrowsIAEIfEntryIsEmpty() {
         Node sut = new Node("test");
         IllegalArgumentException iae = assertThrows(
           IllegalArgumentException.class,
-          () -> sut.addEntry("")
+          () -> sut.add("")
         );
         assertEquals("Entry can not be empty", iae.getMessage());
     }
 
     @Test
-    void addEntryThrowsIAEIfEntryIsLongerThan500Chars() {
+    void addThrowsIAEIfEntryIsLongerThan500Chars() {
         Node sut = new Node("test");
         IllegalArgumentException iae = assertThrows(
           IllegalArgumentException.class,
@@ -215,41 +215,41 @@ class NodeTest {
               String longEntry = new String("");
               for (int i = 0; i <= 500; i++)
                   longEntry += "a";
-              sut.addEntry(longEntry);
+              sut.add(longEntry);
           }
         );
         assertEquals("Entry length can not exceed 500 chars", iae.getMessage());
     }
 
     @Test
-    void removeEntryWithNegativeValueThrowsIllegalArgumentException() {
+    void removeWithNegativeValueThrowsIllegalArgumentException() {
         Node sut = new Node("test");
         IllegalArgumentException iae = assertThrows(
           IllegalArgumentException.class,
-          () -> sut.removeEntry(-1)
+          () -> sut.remove(-1)
         );
         assertEquals("Invalid entry index", iae.getMessage());
     }
 
     @Test
-    void removeEntryWithIndexOutOfRangeThrowsIllegalArgumentException() {
+    void removeWithIndexOutOfRangeThrowsIllegalArgumentException() {
         Node sut = new Node("test");
-        sut.addEntry("entry 1");
-        sut.addEntry("entry 2");
+        sut.add("entry 1");
+        sut.add("entry 2");
         IllegalArgumentException iae = assertThrows(
           IllegalArgumentException.class,
-          () -> sut.removeEntry(2)
+          () -> sut.remove(2)
         );
         assertEquals("Invalid entry index", iae.getMessage());
     }
 
     @Test
-    void removeEntryWithValidIndexRemovesCorrespondingEntry() {
+    void removeWithValidIndexRemovesCorrespondingEntry() {
         Node sut = new Node("test");
-        sut.addEntry("entry 1");
-        sut.addEntry("entry 2");
-        sut.addEntry("entry 3");
-        sut.removeEntry(1);
+        sut.add("entry 1");
+        sut.add("entry 2");
+        sut.add("entry 3");
+        sut.remove(1);
         List<String> entries = sut.getEntries();
         assertEquals(2, entries.size());
         assertEquals("entry 1", entries.get(0));
