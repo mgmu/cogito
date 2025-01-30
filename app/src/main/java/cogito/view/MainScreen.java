@@ -1,12 +1,17 @@
 package cogito.view;
 
-import javax.swing.JPanel;
 import javax.swing.JButton;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-public class MainPanel extends JPanel {
+/**
+ * The first screen of the GUI.
+ *
+ * This Screen prompts the user to choose between creating a new graph or
+ * loading an existing one.
+ */
+public class MainScreen extends Screen {
 
     // Preferred width of the panel
     private static final int PREFERRED_WIDTH = 400;
@@ -14,7 +19,14 @@ public class MainPanel extends JPanel {
     // Preferred height of the panel
     private static final int PREFERRED_HEIGHT = 200;
     
-    public MainPanel() {
+    /**
+     * Creates a new main screen with the given frame manager.
+     *
+     * @param frameManager The frame manager of the application.
+     */
+    public MainScreen(FrameManager frameManager) {
+        super(frameManager);
+
         // Creates a new project
         JButton newButton = createNamedButton(
           "New",

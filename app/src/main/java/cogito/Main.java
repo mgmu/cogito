@@ -1,7 +1,8 @@
 package cogito;
 
-import javax.swing.*;
-import cogito.view.MainPanel;
+import javax.swing.SwingUtilities;
+import cogito.view.MainScreen;
+import cogito.view.FrameManager;
 
 /**
  * Entry class of the program.
@@ -9,13 +10,9 @@ import cogito.view.MainPanel;
 public class Main {
 
     private static void createAndShowGui() {
-        JFrame frame = new JFrame("Cogito");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        frame.getContentPane().add(new MainPanel());
-
-        frame.pack();
-        frame.setVisible(true);
+        MainScreen mainScreen = new MainScreen(null);
+        FrameManager frameManager = new FrameManager(mainScreen);
+        frameManager.showGui();
     }
 
     /**
