@@ -3,6 +3,7 @@ package cogito.model;
 import java.util.Objects;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.UUID;
 import cogito.view.Observer;
 
 /**
@@ -22,6 +23,9 @@ public class Node implements Observable {
 
     // The observers subscribed to this Node updates
     private final List<Observer> observers;
+
+    // The universally unique identifier of this Node
+    private final UUID identifier;
 
     // Minimal title length 
     private static final int MIN_TITLE_LEN = 1;
@@ -92,6 +96,7 @@ public class Node implements Observable {
         this.title = title;
         this.entries = new ArrayList<>();
         this.observers = new ArrayList<>();
+        this.identifier = UUID.randomUUID();
     }
 
     /**
@@ -213,6 +218,15 @@ public class Node implements Observable {
     public void updateObservers() {
         for (Observer obs: this.observers)
             obs.update(this);
+    }
+
+    /**
+     * Returns the UUID of this Node.
+     *
+     * @return A randomly generated universally unique identifier.
+     */
+    public UUID getUuid() {
+        return this.identifier;
     }
 
     // Checks that newEntry length is in bounds and not null.
