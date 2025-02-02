@@ -359,4 +359,10 @@ class NodeTest {
         assertTrue(obs1.updated);
         assertTrue(obs2.updated);
     }
+
+    @Test
+    void nodeHasAUuidAfterCreation() {
+        Node sut = new Node("test");
+        assertNotNull(sut.getUuid());
+    }
 }
