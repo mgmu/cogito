@@ -211,4 +211,10 @@ class GraphTest {
         assertEquals(n2Neighbors, sut.getNodesLinkedTo(n2));
         assertEquals(n3Neighbors, sut.getNodesLinkedTo(n3));
     }
+
+    @Test
+    void graphHasAUuidAfterCreation() {
+        Graph sut = new Graph();
+        assertNotNull(sut.getUuid());
+    }
 }
