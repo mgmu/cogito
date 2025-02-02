@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Encapsulates relations between Nodes.
@@ -13,6 +14,9 @@ public class Graph {
 
     // Adjacency list of nodes
     private final Map<Node, ArrayList<Node>> adj;
+
+    // The universally unique identifier of this Graph
+    private final UUID identifier;
 
     // Error message to show when null node is given
     private static final String NULL_NODE_ERROR = "Node must not be null";
@@ -33,6 +37,7 @@ public class Graph {
      */
     public Graph() {
         this.adj = new HashMap<Node, ArrayList<Node>>();
+        this.identifier = UUID.randomUUID();
     }
 
     /**
@@ -131,5 +136,14 @@ public class Graph {
             return copy;
         }
         return null;
+    }
+
+    /**
+     * Returns the UUID of this Graph.
+     *
+     * @return A randomly generated universally unique identifier.
+     */
+    public UUID getUuid() {
+        return this.identifier;
     }
 }
