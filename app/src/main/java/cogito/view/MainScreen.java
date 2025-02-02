@@ -4,6 +4,7 @@ import javax.swing.JButton;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import cogito.model.Graph;
 
 /**
  * The first screen of the GUI.
@@ -31,9 +32,9 @@ public class MainScreen extends Screen {
         JButton newButton = createNamedButton(
           "New",
           KeyEvent.VK_N,
-          ae -> {
-              throw new UnsupportedOperationException("todo");
-          }
+          ae -> this.frameManager.setCurrentScreen(
+            new GraphEditor(this.frameManager, new Graph())
+          )
         );
 
         // Loads an existing project
