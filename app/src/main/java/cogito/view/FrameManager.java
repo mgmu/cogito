@@ -58,6 +58,7 @@ public class FrameManager {
         this.frame.getContentPane().remove(this.currentScreen);
         this.currentScreen = screen;
         this.frame.getContentPane().add(this.currentScreen);
+        this.frame.pack();
 
         // mysterious, ensure usefulness
         this.frame.revalidate();
