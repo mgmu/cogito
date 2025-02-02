@@ -334,4 +334,29 @@ class NodeTest {
         sut.update(obs);
         assertTrue(obs.updated);
     }
+
+    @Test
+    void addEntryUpdatesObservers() {
+        Node sut = new Node("test");
+        DummyObserver obs1 = new DummyObserver();
+        DummyObserver obs2 = new DummyObserver();
+        sut.subscribe(obs1);
+        sut.subscribe(obs2);
+        sut.add("entry1");
+        assertTrue(obs1.updated);
+        assertTrue(obs2.updated);
+    }
+
+    @Test
+    void removeEntryUpdatesObservers() {
+        Node sut = new Node("test");
+        DummyObserver obs1 = new DummyObserver();
+        DummyObserver obs2 = new DummyObserver();
+        sut.add("entry1");
+        sut.subscribe(obs1);
+        sut.subscribe(obs2);
+        sut.remove(0);
+        assertTrue(obs1.updated);
+        assertTrue(obs2.updated);
+    }
 }

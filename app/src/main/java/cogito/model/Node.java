@@ -169,6 +169,7 @@ public class Node implements Observable {
     public void add(String newEntry) {
         checkEntryValidity(newEntry);
         this.entries.add(newEntry);
+        this.updateObservers();
     }
 
     /**
@@ -183,8 +184,10 @@ public class Node implements Observable {
         if (index < 0 || index >= this.entries.size())
             throw new IllegalArgumentException("Invalid entry index");
         this.entries.remove(index);
+        this.updateObservers();
     }
 
+    @Override
     public void subscribe(Observer observer) {
         Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
         if (observers.contains(observer))
@@ -192,11 +195,13 @@ public class Node implements Observable {
         this.observers.add(observer);
     }
 
+    @Override
     public void unsubscribe(Observer observer) {
         Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
         this.observers.remove(observer);
     }
 
+    @Override
     public void update(Observer observer) {
         Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
         if (!this.observers.contains(observer))
@@ -204,6 +209,7 @@ public class Node implements Observable {
         observer.update(this);
     }
 
+    @Override
     public void updateObservers() {
         for (Observer obs: this.observers)
             obs.update(this);
