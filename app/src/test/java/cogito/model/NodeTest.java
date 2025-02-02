@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
+import cogito.view.Observer;
 
 class NodeTest {
 
@@ -254,5 +255,83 @@ class NodeTest {
         assertEquals(2, entries.size());
         assertEquals("entry 1", entries.get(0));
         assertEquals("entry 3", entries.get(1));
+    }
+
+    class DummyObserver implements Observer {
+        boolean updated = false;
+
+        public void update(Object object) {
+            updated = true;
+        }
+    }
+
+    @Test
+    void setDifferentTitleTriggersUpdate() {
+        DummyObserver obs = new DummyObserver();
+        Node sut = new Node("test");
+        sut.subscribe(obs);
+        sut.setTitle("test1");
+        assertTrue(obs.updated);
+    }
+
+    @Test
+    void subscribeWithNullThrowsNPE() {
+        Node sut = new Node("test");
+        NullPointerException npe = assertThrows(NullPointerException.class,
+                () -> sut.subscribe(null));
+        assertEquals("Observer can not be null", npe.getMessage());
+    }
+
+    @Test
+    void subscribeObserverTwiceThrowsIAE() {
+        Node sut = new Node("test");
+        DummyObserver obs = new DummyObserver();
+        sut.subscribe(obs);
+        IllegalArgumentException iae = assertThrows(
+          IllegalArgumentException.class,
+          () -> sut.subscribe(obs)
+        );
+        assertEquals(
+          "Observer can not be subscribed more than once at a time",
+          iae.getMessage()
+        );
+    }
+
+    @Test
+    void unsubscribeWithNullThrowsNPE() {
+        Node sut = new Node("test");
+        NullPointerException npe = assertThrows(NullPointerException.class,
+                () -> sut.unsubscribe(null));
+        assertEquals("Observer can not be null", npe.getMessage());
+    }
+
+    @Test
+    void updateObserverWithNullThrowsNPE() {
+        Node sut = new Node("test");
+        NullPointerException npe = assertThrows(
+          NullPointerException.class,
+          () -> sut.update(null)
+        );
+        assertEquals("Observer can not be null", npe.getMessage());
+    }
+
+    @Test
+    void updateAbsentObserverThrowsIAE() {
+        Node sut = new Node("test");
+        DummyObserver obs = new DummyObserver();
+        IllegalArgumentException iae = assertThrows(
+          IllegalArgumentException.class,
+          () -> sut.update(obs)
+        );
+        assertEquals("Observer not subscribed", iae.getMessage());
+    }
+
+    @Test
+    void updateObserverUpdates() {
+        Node sut = new Node("test");
+        DummyObserver obs = new DummyObserver();
+        sut.subscribe(obs);
+        sut.update(obs);
+        assertTrue(obs.updated);
     }
 }

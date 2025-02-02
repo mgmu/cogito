@@ -3,6 +3,7 @@ package cogito.model;
 import java.util.Objects;
 import java.util.List;
 import java.util.ArrayList;
+import cogito.view.Observer;
 
 /**
  * Encapsulates text entries related to a title.
@@ -11,13 +12,16 @@ import java.util.ArrayList;
  * most 100 characters. A Node can encapsulate at most 500 entries, each of them
  * must be not empty and have a length of at most 500 characters.
  */
-public class Node {
+public class Node implements Observable {
 
     // The title, length inside [1; 100]
     private String title;
 
     // The entries, size inside [0; 500], each entry length inside [1; 500]
     private final List<String> entries;
+
+    // The observers subscribed to this Node updates
+    private final List<Observer> observers;
 
     // Minimal title length 
     private static final int MIN_TITLE_LEN = 1;
@@ -63,6 +67,17 @@ public class Node {
     private static final String LONG_ENTRY_ERROR =
         "Entry length can not exceed 500 chars";
 
+    // Error message to show when an observer is null
+    private static final String NULL_OBSERVER_ERROR =
+        "Observer can not be null";
+
+    // Error message to show when an observer is subscribed twice
+    private static final String ALREADY_SUBSCRIBED_ERROR =
+        "Observer can not be subscribed more than once at a time";
+
+    private static final String ABSENT_OBSERVER_ERROR =
+        "Observer not subscribed";
+
     /**
      * Creates a Node of given title with no entries.
      *
@@ -76,6 +91,7 @@ public class Node {
         checkTitleValidity(title);
         this.title = title;
         this.entries = new ArrayList<>();
+        this.observers = new ArrayList<>();
     }
 
     /**
@@ -123,7 +139,10 @@ public class Node {
      */
     public void setTitle(String newTitle) {
         checkTitleValidity(newTitle);
-        this.title = newTitle;
+        if (!this.title.equals(newTitle)) {
+            this.title = newTitle;
+            this.updateObservers();
+        }
     }
 
     /**
@@ -164,6 +183,30 @@ public class Node {
         if (index < 0 || index >= this.entries.size())
             throw new IllegalArgumentException("Invalid entry index");
         this.entries.remove(index);
+    }
+
+    public void subscribe(Observer observer) {
+        Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
+        if (observers.contains(observer))
+            throw new IllegalArgumentException(ALREADY_SUBSCRIBED_ERROR);
+        this.observers.add(observer);
+    }
+
+    public void unsubscribe(Observer observer) {
+        Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
+        this.observers.remove(observer);
+    }
+
+    public void update(Observer observer) {
+        Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
+        if (!this.observers.contains(observer))
+            throw new IllegalArgumentException(ABSENT_OBSERVER_ERROR);
+        observer.update(this);
+    }
+
+    public void updateObservers() {
+        for (Observer obs: this.observers)
+            obs.update(this);
     }
 
     // Checks that newEntry length is in bounds and not null.
