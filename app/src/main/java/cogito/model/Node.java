@@ -212,13 +212,13 @@ public class Node implements Observable {
         Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
         if (!this.observers.contains(observer))
             throw new IllegalArgumentException(ABSENT_OBSERVER_ERROR);
-        observer.update(this);
+        observer.updateWithData(this);
     }
 
     @Override
     public void updateObservers() {
         for (Observer obs: this.observers)
-            obs.update(this);
+            obs.updateWithData(this);
     }
 
     /**

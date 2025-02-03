@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.Set;
 import cogito.view.Observer;
 
 /**
@@ -183,12 +184,24 @@ public class Graph implements Observable {
         Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
         if (!this.observers.contains(observer))
             throw new IllegalArgumentException(ABSENT_OBSERVER_ERROR);
-        observer.update(this);
+        observer.updateWithData(this);
     }
 
     @Override
     public void updateObservers() {
         for (Observer observer: this.observers)
-            observer.update(this);
+            observer.updateWithData(this);
+    }
+
+    /**
+     * Returns a list of the nodes in this Graph.
+     *
+     * @return a list of the nodes in this Graph.
+     */
+    public List<Node> getNodes() {
+        Set<Node> nodes = this.adj.keySet();
+        List<Node> nodesAsList = new ArrayList<>();
+        nodesAsList.addAll(nodes);
+        return nodesAsList;
     }
 }

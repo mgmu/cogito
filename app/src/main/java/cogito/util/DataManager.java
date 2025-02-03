@@ -6,7 +6,7 @@ import java.nio.file.Path;
 /**
  * Encapsulates convenience methods for storing data of the application.
  */
-public class DataSaver {
+public class DataManager {
     
     private static final String HOME_DIR = System.getProperty("user.home");
     private static final String INSTAL_DIR_NAME = ".cogito";
