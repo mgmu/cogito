@@ -1,8 +1,12 @@
 package cogito;
 
 import javax.swing.SwingUtilities;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Files;
 import cogito.view.MainScreen;
 import cogito.view.FrameManager;
+import cogito.util.DataSaver;
 
 /**
  * Entry class of the program.
@@ -21,6 +25,17 @@ public class Main {
      * @param args The arguments given to the program.
      */
     public static void main(String[] args) {
+        try {
+            Path instalDir = DataSaver.getInstalDir();
+            if (Files.notExists(instalDir))
+                Files.createDirectory(instalDir);
+            Path graphDir = DataSaver.getGraphsDir();
+            if (Files.notExists(graphDir))
+                Files.createDirectory(graphDir);
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
         SwingUtilities.invokeLater(() -> createAndShowGui());
     }
 }
