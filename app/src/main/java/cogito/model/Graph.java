@@ -6,17 +6,21 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
+import cogito.view.Observer;
 
 /**
  * Encapsulates relations between Nodes.
  */
-public class Graph {
+public class Graph implements Observable {
 
     // Adjacency list of nodes
     private final Map<Node, ArrayList<Node>> adj;
 
     // The universally unique identifier of this Graph
     private final UUID identifier;
+
+    // The observers subscribed to the updates of this Graph
+    private final List<Observer> observers;
 
     // Error message to show when null node is given
     private static final String NULL_NODE_ERROR = "Node must not be null";
@@ -32,12 +36,25 @@ public class Graph {
     private static final String SELF_LINK_ERROR =
         "Node can not be linked to itself";
 
+    // Error message to show when observer is null
+    private static final String NULL_OBSERVER_ERROR =
+        "Observer can not be null";
+
+    // Error message to show when an observer is subscribed twice
+    private static final String ALREADY_SUBSCRIBED_ERROR =
+        "Observer already subscribed";
+
+    // Error message to show when an observer is not subscribed
+    private static final String ABSENT_OBSERVER_ERROR =
+        "Observer not subscribed";
+
     /**
      * Creates a new empty graph.
      */
     public Graph() {
         this.adj = new HashMap<Node, ArrayList<Node>>();
         this.identifier = UUID.randomUUID();
+        this.observers = new ArrayList<>();
     }
 
     /**
@@ -145,5 +162,33 @@ public class Graph {
      */
     public UUID getUuid() {
         return this.identifier;
+    }
+
+    @Override
+    public void subscribe(Observer observer) {
+        Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
+        if (this.observers.contains(observer))
+            throw new IllegalArgumentException(ALREADY_SUBSCRIBED_ERROR);
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void unsubscribe(Observer observer) {
+        Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void update(Observer observer) {
+        Objects.requireNonNull(observer, NULL_OBSERVER_ERROR);
+        if (!this.observers.contains(observer))
+            throw new IllegalArgumentException(ABSENT_OBSERVER_ERROR);
+        observer.update(this);
+    }
+
+    @Override
+    public void updateObservers() {
+        for (Observer observer: this.observers)
+            observer.update(this);
     }
 }

@@ -1,220 +1,264 @@
 package cogito.model;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
+import cogito.view.Observer;
+import cogito.TestUtils;
 
 class GraphTest {
+    Graph sut;
 
-    @Test
-    void containsWithNullThrowsNPE() {
-        Graph sut = new Graph();
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.contains(null));
-        assertEquals("Node must not be null", npe.getMessage());
+    class DummyObserver implements Observer {
+        boolean updated = false;
+
+        public void update(Object object) {
+            updated = true;
+        }
     }
 
-    @Test
-    void containsWithAbsentNodeReturnsFalse() {
-        Graph sut = new Graph();
-        assertFalse(sut.contains(new Node("test")));
-    }
+    @Nested
+    class WhenNew {
 
-    @Test
-    void addWithNullThrowsNPE() {
-        Graph sut = new Graph();
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.add(null));
-        assertEquals("Node must not be null", npe.getMessage());
-    }
+        @BeforeEach
+        void createNewGraph() {
+            sut = new Graph();
+        }
 
-    @Test
-    void addTwiceThrowsIAE() {
-        Graph sut = new Graph();
-        Node node = new Node("test");
-        sut.add(node);
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.add(node)
-        );
-        assertEquals("Node already in graph", iae.getMessage());
-    }
+        @Test
+        void containsWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Node must not be null",
+                    () -> sut.contains(null));
+        }
 
-    @Test
-    void sizeOfNewGraphIs0() {
-        Graph sut = new Graph();
-        assertEquals(0, sut.size());
-    }
+        @Test
+        void containsWithAbsentNodeReturnsFalse() {
+            assertFalse(sut.contains(new Node("test")));
+        }
 
-    @Test
-    void sizeOfGraphWith1NodeIs1() {
-        Graph sut = new Graph();
-        sut.add(new Node("test"));
-        assertEquals(1, sut.size());
-    }
+        @Test
+        void addWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Node must not be null",
+                    () -> sut.add(null));
+        }
 
-    @Test
-    void removeWithNullNodeThrowsNPE() {
-        Graph sut = new Graph();
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.remove(null));
-        assertEquals("Node must not be null", npe.getMessage());
-    }
+        @Test
+        void sizeOfNewGraphIs0() {
+            assertEquals(0, sut.size());
+        }
 
-    @Test
-    void removeWithAbsentNodeThrowsIAE() {
-        Graph sut = new Graph();
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.remove(new Node("test"))
-        );
-        assertEquals("Node not in graph", iae.getMessage());
-    }
+        @Test
+        void removeWithNullNodeThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Node must not be null",
+                    () -> sut.remove(null));
+        }
 
-    @Test
-    void sizeOfGraphWith1NodeAfterRemovalIs0() {
-        Graph sut = new Graph();
-        Node node = new Node("test");
-        sut.add(node);
-        assertEquals(1, sut.size());
-        sut.remove(node);
-        assertEquals(0, sut.size());
-    }
+        @Test
+        void removeWithAbsentNodeThrowsIAE() {
+            TestUtils.assertThrowsIAEWithMsg("Node not in graph",
+                    () -> sut.remove(new Node("test")));
+        }
 
-    @Test
-    void graphContainsCorrectNodesAfterRemoval() {
-        Graph sut = new Graph();
-        Node n1 = new Node("1");
-        Node n2 = new Node("2");
-        Node n3 = new Node("3");
-        sut.add(n1);
-        sut.add(n2);
-        sut.add(n3);
-        assertEquals(3, sut.size());
-        assertTrue(sut.contains(n1));
-        assertTrue(sut.contains(n2));
-        assertTrue(sut.contains(n3));
-        sut.remove(n2);
-        assertEquals(2, sut.size());
-        assertTrue(sut.contains(n1));
-        assertTrue(sut.contains(n3));
-        assertFalse(sut.contains(n2));
-    }
+        @Test
+        void graphContainsCorrectNodesAfterRemoval() {
+            Node n1 = new Node("1");
+            Node n2 = new Node("2");
+            Node n3 = new Node("3");
+            sut.add(n1);
+            sut.add(n2);
+            sut.add(n3);
+            assertEquals(3, sut.size());
+            assertTrue(sut.contains(n1));
+            assertTrue(sut.contains(n2));
+            assertTrue(sut.contains(n3));
+            sut.remove(n2);
+            assertEquals(2, sut.size());
+            assertTrue(sut.contains(n1));
+            assertTrue(sut.contains(n3));
+            assertFalse(sut.contains(n2));
+        }
 
-    @Test
-    void linkThrowsNPEIfSrcIsNull() {
-        Graph sut = new Graph();
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.link(null, new Node("test")));
-        assertEquals("Node must not be null", npe.getMessage());
-    }
+        @Test
+        void linkThrowsNPEIfSrcIsNull() {
+            TestUtils.assertThrowsNPEWithMsg("Node must not be null",
+                    () -> sut.link(null, new Node("test")));
+        }
 
-    @Test
-    void linkThrowsNPEIfDstIsNull() {
-        Graph sut = new Graph();
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.link(new Node("test"), null));
-        assertEquals("Node must not be null", npe.getMessage());
-    }
+        @Test
+        void linkThrowsNPEIfDstIsNull() {
+            TestUtils.assertThrowsNPEWithMsg("Node must not be null",
+                    () -> sut.link(new Node("test"), null));
+        }
 
-    @Test
-    void linkThrowsIAEIfSrcIsAbsent() {
-        Graph sut = new Graph();
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.link(new Node("test"), new Node("test"))
-        );
-        assertEquals("Node not in graph", iae.getMessage());
-    }
+        @Test
+        void linkThrowsIAEIfSrcIsAbsent() {
+            TestUtils.assertThrowsIAEWithMsg("Node not in graph",
+                    () -> sut.link(new Node("test"), new Node("test")));
+        }
 
-    @Test
-    void linkThrowsIAEIfDstIsAbsent() {
-        Graph sut = new Graph();
-        Node node = new Node("test");
-        sut.add(node);
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.link(node, new Node("test"))
-        );
-        assertEquals("Node not in graph", iae.getMessage());
-    }
+        @Test
+        void getNodesLinkedToWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Node must not be null",
+                    () -> sut.getNodesLinkedTo(null));
+        }
 
-    @Test
-    void linkThrowsIAEIfSrcAndDstAreEqual() {
-        Graph sut = new Graph();
-        Node node = new Node("test");
-        sut.add(node);
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.link(node, node)
-        );
-        assertEquals("Node can not be linked to itself", iae.getMessage());
-    }
+        @Test
+        void getNodesLinkedToAbsentNodeThrowsIAE() {
+            TestUtils.assertThrowsIAEWithMsg("Node not in graph",
+                    () -> sut.getNodesLinkedTo(new Node("absent")));
+        }
 
-    @Test
-    void getNodesLinkedToWithNullThrowsNPE() {
-        Graph sut = new Graph();
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.getNodesLinkedTo(null));
-        assertEquals("Node must not be null", npe.getMessage());
-    }
 
-    @Test
-    void getNodesLinkedToAbsentNodeThrowsIAE() {
-        Graph sut = new Graph();
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.getNodesLinkedTo(new Node("absent"))
-        );
-        assertEquals("Node not in graph", iae.getMessage());
-    }
+        @Test
+        void getNodesLinkedToNodeWith1LinkReturnsAListOfSize1() {
+            Node n1 = new Node("test");
+            Node n2 = new Node("test");
+            sut.add(n1);
+            sut.add(n2);
+            sut.link(n1, n2);
+            assertEquals(1, sut.getNodesLinkedTo(n1).size());
+        }
 
-    @Test
-    void getNodesLinkedToNodeWithNoLinksReturnsTheEmptyList() {
-        Graph sut = new Graph();
-        Node node = new Node("test");
-        sut.add(node);
-        assertTrue(sut.getNodesLinkedTo(node).isEmpty());
-    }
+        @Test
+        void getNodesLinkedToNodeInCycleReturnsCorrectNeighborList() {
+            Node n1 = new Node("test");
+            Node n2 = new Node("test");
+            Node n3 = new Node("test");
+            sut.add(n1);
+            sut.add(n2);
+            sut.add(n3);
+            sut.link(n1, n2);
+            sut.link(n2, n3);
+            sut.link(n3, n1);
+            List<Node> n1Neighbors = new ArrayList<>();
+            n1Neighbors.add(n2);
+            List<Node> n2Neighbors = new ArrayList<>();
+            n2Neighbors.add(n3);
+            List<Node> n3Neighbors = new ArrayList<>();
+            n3Neighbors.add(n1);
+            assertEquals(n1Neighbors, sut.getNodesLinkedTo(n1));
+            assertEquals(n2Neighbors, sut.getNodesLinkedTo(n2));
+            assertEquals(n3Neighbors, sut.getNodesLinkedTo(n3));
+        }
 
-    @Test
-    void getNodesLinkedToNodeWith1LinkReturnsAListOfSize1() {
-        Graph sut = new Graph();
-        Node n1 = new Node("test");
-        Node n2 = new Node("test");
-        sut.add(n1);
-        sut.add(n2);
-        sut.link(n1, n2);
-        assertEquals(1, sut.getNodesLinkedTo(n1).size());
-    }
+        @Test
+        void graphHasAUuidAfterCreation() {
+            assertNotNull(sut.getUuid());
+        }
 
-    @Test
-    void getNodesLinkedToNodeInCycleReturnsCorrectNeighborList() {
-        Graph sut = new Graph();
-        Node n1 = new Node("test");
-        Node n2 = new Node("test");
-        Node n3 = new Node("test");
-        sut.add(n1);
-        sut.add(n2);
-        sut.add(n3);
-        sut.link(n1, n2);
-        sut.link(n2, n3);
-        sut.link(n3, n1);
-        List<Node> n1Neighbors = new ArrayList<>();
-        n1Neighbors.add(n2);
-        List<Node> n2Neighbors = new ArrayList<>();
-        n2Neighbors.add(n3);
-        List<Node> n3Neighbors = new ArrayList<>();
-        n3Neighbors.add(n1);
-        assertEquals(n1Neighbors, sut.getNodesLinkedTo(n1));
-        assertEquals(n2Neighbors, sut.getNodesLinkedTo(n2));
-        assertEquals(n3Neighbors, sut.getNodesLinkedTo(n3));
-    }
+        @Test
+        void updateNullObserverThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
+                    () -> sut.update(null));
+        }
 
-    @Test
-    void graphHasAUuidAfterCreation() {
-        Graph sut = new Graph();
-        assertNotNull(sut.getUuid());
+        @Test
+        void subscribeWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
+                    () -> sut.subscribe(null));
+        }
+
+        @Test
+        void unsubscribeWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
+                    () -> sut.unsubscribe(null));
+        }
+
+        @Nested
+        class AfterAddingAnObserver {
+            DummyObserver obs;
+
+            @BeforeEach
+            void addAnObserver() {
+                obs = new DummyObserver();
+                sut.subscribe(obs);
+            }
+
+            @Test
+            void updateWithUnsubscribedObserverThrowsIAE() {
+                DummyObserver other = new DummyObserver();
+                TestUtils.assertThrowsIAEWithMsg("Observer not subscribed",
+                        () -> sut.update(other));
+            }
+
+            @Test
+            void updateAfterSubscriptionUpdatesObserver() {
+                sut.update(obs);
+                assertTrue(obs.updated);
+            }
+
+            @Test
+            void subscribeTwiceThrowsIAE() {
+                TestUtils.assertThrowsIAEWithMsg("Observer already subscribed",
+                        () -> sut.subscribe(obs));
+            }
+
+            @Test
+            void updateObserversUpdatesEveryObserverSubscribed() {
+                DummyObserver other = new DummyObserver();
+                sut.subscribe(other);
+                sut.updateObservers();
+                assertTrue(obs.updated);
+                assertTrue(other.updated);
+            }
+
+            @Test
+            void observerSubscribedThenUnsubscribedIsNotUpdated() {
+                sut.unsubscribe(obs);
+                sut.updateObservers();
+                assertFalse(obs.updated);
+            }
+        }
+
+        @Nested
+        class AfterAddingANode{
+            Node node;
+
+            @BeforeEach
+            void addANode() {
+                node = new Node("test");
+                sut.add(node);
+            }
+
+            @Test
+            void addTwiceThrowsIAE() {
+                TestUtils.assertThrowsIAEWithMsg("Node already in graph",
+                        () -> sut.add(node));
+            }
+
+            @Test
+            void sizeOfGraphWith1NodeIs1() {
+                assertEquals(1, sut.size());
+            }
+
+            @Test
+            void sizeOfGraphWith1NodeAfterRemovalIs0() {
+                assertEquals(1, sut.size());
+                sut.remove(node);
+                assertEquals(0, sut.size());
+            }
+
+            @Test
+            void linkThrowsIAEIfDstIsAbsent() {
+                TestUtils.assertThrowsIAEWithMsg("Node not in graph",
+                        () -> sut.link(node, new Node("test")));
+            }
+
+            @Test
+            void linkThrowsIAEIfSrcAndDstAreEqual() {
+                TestUtils.assertThrowsIAEWithMsg(
+                  "Node can not be linked to itself",
+                  () -> sut.link(node, node)
+                );
+            }
+
+            @Test
+            void getNodesLinkedToNodeWithNoLinksReturnsTheEmptyList() {
+                assertTrue(sut.getNodesLinkedTo(node).isEmpty());
+            }
+        }
     }
 }
