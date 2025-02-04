@@ -77,8 +77,9 @@ public class Node implements Observable {
 
     // Error message to show when an observer is subscribed twice
     private static final String ALREADY_SUBSCRIBED_ERROR =
-        "Observer can not be subscribed more than once at a time";
+        "Observer already subscribed";
 
+    // Error message to show when an observer is not subscribed
     private static final String ABSENT_OBSERVER_ERROR =
         "Observer not subscribed";
 

@@ -292,7 +292,7 @@ class NodeTest {
           () -> sut.subscribe(obs)
         );
         assertEquals(
-          "Observer can not be subscribed more than once at a time",
+          "Observer already subscribed",
           iae.getMessage()
         );
     }
