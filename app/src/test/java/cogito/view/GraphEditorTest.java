@@ -2,13 +2,13 @@ package cogito.view;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import cogito.TestUtils;
 
 class GraphEditorTest {
 
     @Test
     void newGraphEditorWithNullModelThrowsNPE() {
-        NullPointerException npe = assertThrows(NullPointerException.class,
+        TestUtils.assertThrowsNPEWithMsg("Graph can not be null",
                 () -> new GraphEditor(null, null));
-        assertEquals("Graph can not be null", npe.getMessage());
     }
 }

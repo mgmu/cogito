@@ -1,34 +1,37 @@
 package cogito.model;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
 import cogito.view.Observer;
+import cogito.TestUtils;
 
 class NodeTest {
 
+    class DummyObserver implements Observer {
+        boolean updated = false;
+
+        public void update(Object object) {
+            updated = true;
+        }
+    }
+
     @Test
     void newNodeWithEmptyTitleThrowsException() {
-        IllegalArgumentException exception = assertThrows(
-          IllegalArgumentException.class, () -> {
-              Node node = new Node("");
-          }
-        );
-        assertEquals("Node title can not be empty", exception.getMessage());
+        TestUtils.assertThrowsIAEWithMsg("Node title can not be empty",
+                () -> new Node(""));
     }
 
     @Test
     void newNodeWithTitleLongerThan100CharsThrowsException() {
-        IllegalArgumentException exception = assertThrows(
-          IllegalArgumentException.class, () -> {
-              Node node = new Node("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-              // 101 chars
-          }
+        TestUtils.assertThrowsIAEWithMsg(
+          "Node title can not be longer than 100 characters",
+          () -> new Node("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                  + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         );
-        assertEquals("Node title can not be longer than 100 characters",
-                exception.getMessage());
     }
 
     @Test
@@ -37,79 +40,216 @@ class NodeTest {
     }
 
     @Test
-    void nodeShouldHaveAGetTitle() {
-        Node sut = new Node("test");
-        assertNotNull(sut.getTitle(),
-                "node class should have a getTitle method");
-    }
-
-    @Test
     void getTitleOfNodeWithTitleInfoReturnsInfo() {
         Node sut = new Node("info");
         assertEquals("info", sut.getTitle());
     }
 
-    @Test
-    void getTitleOfNodeWithTitleTestReturnsTest() {
-        Node sut = new Node("test");
-        assertEquals("test", sut.getTitle());
-    }
+    class WithTitleTest {
+        Node sut;
 
-    @Test
-    void nodeTitleIsUpdatedWithSetTitle() {
-        Node sut = new Node("test");
-        assertEquals("test", sut.getTitle());
-        sut.setTitle("info");
-        assertEquals("info", sut.getTitle());
-    }
+        @BeforeEach
+        void newTestNode() {
+            sut = new Node("test");
+        }
 
-    @Test
-    void setTitleWithEmptyStringThrowsException() {
-        Node sut = new Node("test");
-        IllegalArgumentException exception = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.setTitle("")
-        );
-        assertEquals("Node title can not be empty", exception.getMessage());
-    }
+        @Test
+        void nodeShouldHaveAGetTitle() {
+            assertNotNull(sut.getTitle(),
+                    "node class should have a getTitle method");
+        }
 
-    @Test
-    void setTitleWithStringLongerThan100CharsThrowsException() {
-        Node sut = new Node("test");
-        IllegalArgumentException exception = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.setTitle("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-        );
-        assertEquals("Node title can not be longer than 100 characters",
-                exception.getMessage());
+        @Test
+        void getTitleOfNodeWithTitleTestReturnsTest() {
+            assertEquals("test", sut.getTitle());
+        }
+
+        @Test
+        void nodeTitleIsUpdatedWithSetTitle() {
+            sut.setTitle("info");
+            assertEquals("info", sut.getTitle());
+        }
+
+        @Test
+        void setTitleWithEmptyStringThrowsException() {
+            TestUtils.assertThrowsIAEWithMsg("Node title can not be empty",
+                    () -> sut.setTitle(""));
+        }
+
+        @Test
+        void setTitleWithStringLongerThan100CharsThrowsException() {
+            TestUtils.assertThrowsIAEWithMsg(
+              "Node title can not be longer than 100 characters",
+              () -> sut.setTitle("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      + "aa")
+            );
+        }
+
+        @Test
+        void setTitleWithNullTitleThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Node title can not be null",
+                    () -> sut.setTitle(null));
+        }
+
+        @Test
+        void nodeShouldHaveAGetEntries() {
+            assertNotNull(sut.getEntries(),
+                    "Node should have a getEntries method");
+        }
+
+        @Test
+        void getEntriesOnNewNodeReturnsTheEmptyList() {
+            assertTrue(sut.getEntries().isEmpty());
+        }
+
+        @Test
+        void nodeEntriesSizeIncreasesBy1WhenAddsValidEntry() {
+            List<String> entries = sut.getEntries();
+            assertEquals(0, entries.size());
+            sut.add("entry 1");
+            entries = sut.getEntries();
+            assertEquals(1, entries.size());
+        }
+
+        @Test
+        void addThrowsNPEIfNewEntryIsNull() {
+            TestUtils.assertThrowsNPEWithMsg("Entry can not be null",
+                    () -> sut.add(null));
+        }
+
+        @Test
+        void addThrowsIAEIfEntryIsEmpty() {
+            TestUtils.assertThrowsIAEWithMsg("Entry can not be empty",
+                    () -> sut.add(""));
+        }
+
+        @Test
+        void addThrowsIAEIfEntryIsLongerThan500Chars() {
+            TestUtils.assertThrowsIAEWithMsg(
+              "Entry length can not exceed 500 chars",
+              () -> {
+                  String longEntry = new String("");
+                  for (int i = 0; i <= 500; i++)
+                      longEntry += "a";
+                  sut.add(longEntry);
+              }
+            );
+        }
+
+        @Test
+        void removeWithNegativeValueThrowsIllegalArgumentException() {
+            TestUtils.assertThrowsIAEWithMsg("Invalid entry index",
+                    () -> sut.remove(-1));
+        }
+
+        @Test
+        void removeWithIndexOutOfRangeThrowsIllegalArgumentException() {
+            sut.add("entry 1");
+            sut.add("entry 2");
+            TestUtils.assertThrowsIAEWithMsg("Invalid entry index",
+                    () -> sut.remove(2));
+        }
+
+        @Test
+        void removeWithValidIndexRemovesCorrespondingEntry() {
+            sut.add("entry 1");
+            sut.add("entry 2");
+            sut.add("entry 3");
+            sut.remove(1);
+            List<String> entries = sut.getEntries();
+            assertEquals(2, entries.size());
+            assertEquals("entry 1", entries.get(0));
+            assertEquals("entry 3", entries.get(1));
+        }
+
+        
+        @Test
+        void subscribeWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
+                    () -> sut.subscribe(null));
+        }
+
+        @Test
+        void updateObserverWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
+                    () -> sut.update(null));
+        }
+
+        @Test
+        void unsubscribeWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
+                    () -> sut.unsubscribe(null));
+        }
+
+        @Test
+        void nodeHasAUuidAfterCreation() {
+            assertNotNull(sut.getUuid());
+        }
+
+        @Nested
+        class WithObserver {
+            DummyObserver obs;
+            
+            @BeforeEach
+            void createObserver() {
+                obs = new DummyObserver();
+            }
+
+            @Test
+            void setDifferentTitleTriggersUpdate() {
+                sut.subscribe(obs);
+                sut.setTitle("test1");
+                assertTrue(obs.updated);
+            }
+            
+            @Test
+            void subscribeObserverTwiceThrowsIAE() {
+                sut.subscribe(obs);
+                TestUtils.assertThrowsIAEWithMsg("Observer already subscribed",
+                        () -> sut.subscribe(obs));
+            }
+
+            @Test
+            void updateAbsentObserverThrowsIAE() {
+                TestUtils.assertThrowsIAEWithMsg("Observer not subscribed",
+                        () -> sut.update(obs));
+            }
+
+            @Test
+            void updateObserverUpdates() {
+                sut.subscribe(obs);
+                sut.update(obs);
+                assertTrue(obs.updated);
+            }
+
+            @Test
+            void addEntryUpdatesObservers() {
+                DummyObserver obs2 = new DummyObserver();
+                sut.subscribe(obs);
+                sut.subscribe(obs2);
+                sut.add("entry1");
+                assertTrue(obs.updated);
+                assertTrue(obs2.updated);
+            }
+
+            @Test
+            void removeEntryUpdatesObservers() {
+                DummyObserver obs2 = new DummyObserver();
+                sut.add("entry1");
+                sut.subscribe(obs);
+                sut.subscribe(obs2);
+                sut.remove(0);
+                assertTrue(obs.updated);
+                assertTrue(obs2.updated);
+            }
+        }
     }
 
     @Test
     void newNodeWithNullTitleThrowsNPE() {
-        NullPointerException npe = assertThrows(NullPointerException.class,
+        TestUtils.assertThrowsNPEWithMsg("Node title can not be null",
                 () -> new Node(null));
-        assertEquals("Node title can not be null", npe.getMessage());
-    }
-
-    @Test
-    void setTitleWithNullTitleThrowsNPE() {
-        Node sut = new Node("test");
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.setTitle(null));
-        assertEquals("Node title can not be null", npe.getMessage());
-    }
-
-    @Test
-    void nodeShouldHaveAGetEntries() {
-        Node sut = new Node("test");
-        assertNotNull(sut.getEntries(), "Node should have a getEntries method");
-    }
-
-    @Test
-    void getEntriesOnNewNodeReturnsTheEmptyList() {
-        Node sut = new Node("test");
-        assertTrue(sut.getEntries().isEmpty());
     }
 
     @Test
@@ -123,10 +263,10 @@ class NodeTest {
 
     @Test
     void newNodeWithNullListThrowsNPE() {
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> new Node("test", null));
-        assertEquals("New node can not be initialized with null list",
-                npe.getMessage());
+        TestUtils.assertThrowsNPEWithMsg(
+          "New node can not be initialized with null list",
+          () -> new Node("test", null)
+        );
     }
 
     @Test
@@ -135,11 +275,8 @@ class NodeTest {
         dummyEntries.add("not null");
         dummyEntries.add(null);
         dummyEntries.add("not null again");
-        NullPointerException npe = assertThrows(
-          NullPointerException.class,
-          () -> new Node("test", dummyEntries)
-        );
-        assertEquals("Entry can not be null", npe.getMessage());
+        TestUtils.assertThrowsNPEWithMsg("Entry can not be null",
+                () -> new Node("test", dummyEntries));
     }
 
     @Test
@@ -147,22 +284,16 @@ class NodeTest {
         List<String> dummyEntries = new ArrayList<>();
         for (int i = 0; i <= 500; i++)
             dummyEntries.add("a");
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> new Node("test", dummyEntries)
-        );
-        assertEquals("Node can contain at most 500 entries", iae.getMessage());
+        TestUtils.assertThrowsIAEWithMsg("Node can contain at most 500 entries",
+                () -> new Node("test", dummyEntries));
     }
 
     @Test
     void newNodeWithEmtpyEntryThrowsIAE() {
         List<String> dummyEntries = new ArrayList<>();
         dummyEntries.add("");
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> new Node("test", dummyEntries)
-        );
-        assertEquals("Entry can not be empty", iae.getMessage());
+        TestUtils.assertThrowsIAEWithMsg("Entry can not be empty",
+                () -> new Node("test", dummyEntries));
     }
 
     @Test
@@ -172,197 +303,9 @@ class NodeTest {
         for (int i = 0; i <= 500; i++)
             test = test + "a";
         dummyEntries.add(test);
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
+        TestUtils.assertThrowsIAEWithMsg(
+          "Entry length can not exceed 500 chars",
           () -> new Node("test", dummyEntries)
         );
-        assertEquals("Entry length can not exceed 500 chars", iae.getMessage());
-    }
-
-    @Test
-    void nodeEntriesSizeIncreasesBy1WhenAddsValidEntry() {
-        Node sut = new Node("test");
-        List<String> entries = sut.getEntries();
-        assertEquals(0, entries.size());
-        sut.add("entry 1");
-        entries = sut.getEntries();
-        assertEquals(1, entries.size());
-    }
-
-    @Test
-    void addThrowsNPEIfNewEntryIsNull() {
-        Node sut = new Node("test");
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.add(null));
-        assertEquals("Entry can not be null", npe.getMessage());
-    }
-
-    @Test
-    void addThrowsIAEIfEntryIsEmpty() {
-        Node sut = new Node("test");
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.add("")
-        );
-        assertEquals("Entry can not be empty", iae.getMessage());
-    }
-
-    @Test
-    void addThrowsIAEIfEntryIsLongerThan500Chars() {
-        Node sut = new Node("test");
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> {
-              String longEntry = new String("");
-              for (int i = 0; i <= 500; i++)
-                  longEntry += "a";
-              sut.add(longEntry);
-          }
-        );
-        assertEquals("Entry length can not exceed 500 chars", iae.getMessage());
-    }
-
-    @Test
-    void removeWithNegativeValueThrowsIllegalArgumentException() {
-        Node sut = new Node("test");
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.remove(-1)
-        );
-        assertEquals("Invalid entry index", iae.getMessage());
-    }
-
-    @Test
-    void removeWithIndexOutOfRangeThrowsIllegalArgumentException() {
-        Node sut = new Node("test");
-        sut.add("entry 1");
-        sut.add("entry 2");
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.remove(2)
-        );
-        assertEquals("Invalid entry index", iae.getMessage());
-    }
-
-    @Test
-    void removeWithValidIndexRemovesCorrespondingEntry() {
-        Node sut = new Node("test");
-        sut.add("entry 1");
-        sut.add("entry 2");
-        sut.add("entry 3");
-        sut.remove(1);
-        List<String> entries = sut.getEntries();
-        assertEquals(2, entries.size());
-        assertEquals("entry 1", entries.get(0));
-        assertEquals("entry 3", entries.get(1));
-    }
-
-    class DummyObserver implements Observer {
-        boolean updated = false;
-
-        public void update(Object object) {
-            updated = true;
-        }
-    }
-
-    @Test
-    void setDifferentTitleTriggersUpdate() {
-        DummyObserver obs = new DummyObserver();
-        Node sut = new Node("test");
-        sut.subscribe(obs);
-        sut.setTitle("test1");
-        assertTrue(obs.updated);
-    }
-
-    @Test
-    void subscribeWithNullThrowsNPE() {
-        Node sut = new Node("test");
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.subscribe(null));
-        assertEquals("Observer can not be null", npe.getMessage());
-    }
-
-    @Test
-    void subscribeObserverTwiceThrowsIAE() {
-        Node sut = new Node("test");
-        DummyObserver obs = new DummyObserver();
-        sut.subscribe(obs);
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.subscribe(obs)
-        );
-        assertEquals(
-          "Observer already subscribed",
-          iae.getMessage()
-        );
-    }
-
-    @Test
-    void unsubscribeWithNullThrowsNPE() {
-        Node sut = new Node("test");
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.unsubscribe(null));
-        assertEquals("Observer can not be null", npe.getMessage());
-    }
-
-    @Test
-    void updateObserverWithNullThrowsNPE() {
-        Node sut = new Node("test");
-        NullPointerException npe = assertThrows(
-          NullPointerException.class,
-          () -> sut.update(null)
-        );
-        assertEquals("Observer can not be null", npe.getMessage());
-    }
-
-    @Test
-    void updateAbsentObserverThrowsIAE() {
-        Node sut = new Node("test");
-        DummyObserver obs = new DummyObserver();
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.update(obs)
-        );
-        assertEquals("Observer not subscribed", iae.getMessage());
-    }
-
-    @Test
-    void updateObserverUpdates() {
-        Node sut = new Node("test");
-        DummyObserver obs = new DummyObserver();
-        sut.subscribe(obs);
-        sut.update(obs);
-        assertTrue(obs.updated);
-    }
-
-    @Test
-    void addEntryUpdatesObservers() {
-        Node sut = new Node("test");
-        DummyObserver obs1 = new DummyObserver();
-        DummyObserver obs2 = new DummyObserver();
-        sut.subscribe(obs1);
-        sut.subscribe(obs2);
-        sut.add("entry1");
-        assertTrue(obs1.updated);
-        assertTrue(obs2.updated);
-    }
-
-    @Test
-    void removeEntryUpdatesObservers() {
-        Node sut = new Node("test");
-        DummyObserver obs1 = new DummyObserver();
-        DummyObserver obs2 = new DummyObserver();
-        sut.add("entry1");
-        sut.subscribe(obs1);
-        sut.subscribe(obs2);
-        sut.remove(0);
-        assertTrue(obs1.updated);
-        assertTrue(obs2.updated);
-    }
-
-    @Test
-    void nodeHasAUuidAfterCreation() {
-        Node sut = new Node("test");
-        assertNotNull(sut.getUuid());
     }
 }
