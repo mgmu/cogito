@@ -45,6 +45,47 @@ class NodeTest {
         assertEquals("info", sut.getTitle());
     }
 
+    @Nested
+    class AtLocationX5Y10 {
+        Node sut;
+
+        @BeforeEach
+        void newTestNodeAtLocation() {
+            sut = new Node("test", 5, 10);
+        }
+
+        @Test
+        void nodeXShouldBe5() {
+            assertEquals(5, sut.getX());
+        }
+
+        @Test
+        void nodeYShouldBe10() {
+            assertEquals(10, sut.getY());
+        }
+
+        @Nested
+        class AfterSetXAndY {
+
+            @BeforeEach
+            void setNewLocation() {
+                sut.setX(-10);
+                sut.setY(50);
+            }
+
+            @Test
+            void nodeXShouldBeMinus10() {
+                assertEquals(-10, sut.getX());
+            }
+
+            @Test
+            void nodeYShouldBe50() {
+                assertEquals(50, sut.getY());
+            }
+        }
+    }
+        
+    @Nested
     class WithTitleTest {
         Node sut;
 
@@ -162,7 +203,6 @@ class NodeTest {
             assertEquals("entry 1", entries.get(0));
             assertEquals("entry 3", entries.get(1));
         }
-
         
         @Test
         void subscribeWithNullThrowsNPE() {
@@ -185,6 +225,16 @@ class NodeTest {
         @Test
         void nodeHasAUuidAfterCreation() {
             assertNotNull(sut.getUuid());
+        }
+
+        @Test
+        void nodeIsAtXLocation0() {
+            assertEquals(0, sut.getX());
+        }
+
+        @Test
+        void nodeIsAtYLocation0() {
+            assertEquals(0, sut.getY());
         }
 
         @Nested

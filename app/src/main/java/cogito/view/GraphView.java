@@ -2,6 +2,7 @@ package cogito.view;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JFrame;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,9 @@ public class GraphView extends JPanel implements Observer {
     private final int preferredWidth;
     private final int preferredHeight;
 
+    // The frame of the app.
+    private JFrame appFrame;
+
     // Error message to show when a null object is given.
     private static final String NULL_OBJECT_ERROR = "Object can not be null";
 
@@ -43,20 +47,22 @@ public class GraphView extends JPanel implements Observer {
      * @param model The graph model to represent.
      * @param width The preferred width of this GraphView.
      * @param height The preferred height of this GraphView.
+     * @param appFrame The application JFrame.
      */
-    public GraphView(Graph model, int width, int height) {
+    public GraphView(Graph model, int width, int height, JFrame appFrame) {
         this.model = Objects.requireNonNull(model, "Graph can not be null");
         this.preferredWidth = width;
         this.preferredHeight = height;
-        
+        this.appFrame = appFrame;
+        this.nodeViews = new ArrayList<>();
+        this.linkViews = new ArrayList<>();
+
         if (this.model.size() != 0) {
-            this.nodeViews = new ArrayList<>();
-            if (this.model != null) {
-                List<Node> nodes = this.model.getNodes();
-                for (Node node: nodes) {
-                    this.nodeViews.add(new NodeView(node));
-                    // look for links of Nodes
-                }
+            List<Node> nodes = this.model.getNodes();
+            for (Node node: nodes) {
+                NodeView nv = new NodeView(node);
+                this.nodeViews.add(nv);
+                node.subscribe(nv);
             }
         }
     }
@@ -67,7 +73,17 @@ public class GraphView extends JPanel implements Observer {
         if (!(object instanceof Graph))
             throw new IllegalArgumentException(NOT_A_GRAPH_ERROR);
         this.model = (Graph)object;
-        System.out.println("updated view");
+
+        for (NodeView nodeView: this.nodeViews)
+            nodeView.unsubscribeModel();
+
+        List<Node> nodes = this.model.getNodes();
+        for (Node node: nodes) {
+            NodeView nv = new NodeView(node);
+            this.nodeViews.add(nv);
+            node.subscribe(nv);
+        }
+
         this.repaint();
     }
 
@@ -81,12 +97,16 @@ public class GraphView extends JPanel implements Observer {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
 
-        List<Node> nodes = this.model.getNodes();
-        int y = 100;
-        for (Node node: nodes) {
-            System.out.println("drawing node: " + node.getTitle());
-            g2d.drawString(node.getTitle(), 100, y);
-            y += 50;
-        }
+        for (NodeView nv: this.nodeViews)
+            g2d.draw(nv);
+    }
+
+    /**
+     * Returns the application frame.
+     *
+     * @return The application JFrame.
+     */
+    public JFrame getAppFrame() {
+        return this.appFrame;
     }
 }

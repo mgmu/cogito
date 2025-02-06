@@ -1,10 +1,10 @@
 package cogito.view;
 
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 import cogito.model.Node;
 
-public class NodeView extends Ellipse2D.Double implements Observer {
+public class NodeView extends Rectangle2D.Double implements Observer {
 
     // The model that this NodeView represents
     private Node model;
@@ -27,7 +27,12 @@ public class NodeView extends Ellipse2D.Double implements Observer {
      */
     public NodeView(Node model) {
         this.model = Objects.requireNonNull(model, NULL_NODE_ERROR);
-        // model.subscribe(this); // wait for end of draw
+        this.setRect(
+          this.model.getX(), // tmp x and y: getX returns CENTER, we want UL
+          this.model.getY(),
+          50, // tmp width
+          50 // tmp height
+        );
     }
     
     @Override
@@ -37,5 +42,12 @@ public class NodeView extends Ellipse2D.Double implements Observer {
             throw new IllegalArgumentException(NOT_A_NODE_ERROR);
         this.model = (Node)object;
         // does nothing with new data for the moment
+    }
+
+    /**
+     * Unsubscribes this NodeView from its model.
+     */
+    public void unsubscribeModel() {
+        this.model.unsubscribe(this);
     }
 }

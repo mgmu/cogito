@@ -7,7 +7,8 @@ import java.util.UUID;
 import cogito.view.Observer;
 
 /**
- * Encapsulates text entries related to a title.
+ * Encapsulates text entries related to a title, at a certain position in the
+ * graph space.
  *
  * The title of a Node is mandatory, must be not empty and have a length of at
  * most 100 characters. A Node can encapsulate at most 500 entries, each of them
@@ -20,6 +21,12 @@ public class Node implements Observable {
 
     // The entries, size inside [0; 500], each entry length inside [1; 500]
     private final List<String> entries;
+
+    // The x coordinate of this Node in the graph space
+    private int x;
+
+    // The y coordinate of this Node in the graph space
+    private int y;
 
     // The observers subscribed to this Node updates
     private final List<Observer> observers;
@@ -46,51 +53,33 @@ public class Node implements Observable {
     private static final String SHORT_TITLE_ERROR =
         "Node title can not be empty";
 
-    // Error message to show when title is too long
+    // Error messages
     private static final String LONG_TITLE_ERROR =
         "Node title can not be longer than 100 characters";
-
-    // Error message to show when title is null
     private static final String NULL_TITLE_ERROR = "Node title can not be null";
-
-    // Error message to show when the list of entries contains a null element
     private static final String NULL_LIST_ENTRY_ERROR =
         "New node can not be initialized with null list";
-
-    // Error message to show when a null entry addition is attempted
     private static final String NULL_ENTRY_ERROR = "Entry can not be null";
-
-    // Error message to show when an entry is added at full capacity
     private static final String MAX_NB_ENTRIES_ERROR =
         "Node can contain at most 500 entries";
-
-    // Error message to show when an entry is too short
     private static final String SHORT_ENTRY_ERROR = "Entry can not be empty";
-
-    // Error message to show when an entry is too long
     private static final String LONG_ENTRY_ERROR =
         "Entry length can not exceed 500 chars";
-
-    // Error message to show when an observer is null
     private static final String NULL_OBSERVER_ERROR =
         "Observer can not be null";
-
-    // Error message to show when an observer is subscribed twice
     private static final String ALREADY_SUBSCRIBED_ERROR =
         "Observer already subscribed";
-
-    // Error message to show when an observer is not subscribed
     private static final String ABSENT_OBSERVER_ERROR =
         "Observer not subscribed";
 
     /**
-     * Creates a Node of given title with no entries.
+     * Creates a Node of given title with no entries, at (0, 0).
      *
      * @param title A string of length greater or equal to 1 and inferior or
      *        equal to 100, not null.
      * @throws NullPointerException if title is null.
      * @throws IllegalArgumentException if title length is less than 1 or
-               greater than 100.
+     *          greater than 100.
      */
     public Node(String title) {
         checkTitleValidity(title);
@@ -98,6 +87,25 @@ public class Node implements Observable {
         this.entries = new ArrayList<>();
         this.observers = new ArrayList<>();
         this.identifier = UUID.randomUUID();
+        this.x = 0;
+        this.y = 0;
+    }
+
+    /**
+     * Creates a Node of given title with no entries, at (x, y).
+     *
+     * @param title A string of length greater or equal to 1 and inferior or
+     *        equal to 100, not null.
+     * @param x The x coordinate of this Node in the graph space.
+     * @param y The y coordinate of this Node in the graph space.
+     * @throws NullPointerException if title is null.
+     * @throws IllegalArgumentException if title length is less than 1 or
+     *         greater than 100.
+     */
+    public Node(String title, int x, int y) {
+        this(title);
+        this.x = x;
+        this.y = y;
     }
 
     /**
@@ -228,6 +236,42 @@ public class Node implements Observable {
      */
     public UUID getUuid() {
         return this.identifier;
+    }
+
+    /**
+     * Returns the x coordinate of this Node in the graph space.
+     *
+     * @return the x coordiante of this Node in the graph space.
+     */
+    public int getX() {
+        return this.x;
+    }
+
+    /**
+     * Sets the x coordinate of this Node in the graph space to newX.
+     *
+     * @param newX The new x coordinate of this Node in the graph space.
+     */
+    public void setX(int newX) {
+        this.x = newX;
+    }
+
+    /**
+     * Returns the y coordinate of this Node in the graph space.
+     *
+     * @return the y coordiante of this Node in the graph space.
+     */
+    public int getY() {
+        return this.y;
+    }
+
+    /**
+     * Sets the y coordinate of this Node in the graph space to newX.
+     *
+     * @param newY The new y coordinate of this Node in the graph space.
+     */
+    public void setY(int newY) {
+        this.y = newY;
     }
 
     // Checks that newEntry length is in bounds and not null.
