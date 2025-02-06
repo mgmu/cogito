@@ -26,6 +26,7 @@ class GraphEditorMouseControllerTest {
     @Test
     void newGEMCWithNullModelThrowsNPE() {
         TestUtils.assertThrowsNPEWithMsg("Graph can not be null",
-                () -> new DummyGEMC(new GraphView(new Graph(), 0, 0), null));
+                () -> new DummyGEMC(new GraphView(new Graph(), 0, 0, null),
+                        null));
     }
 }

@@ -2,6 +2,7 @@ package cogito.view;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JFrame;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,9 @@ public class GraphView extends JPanel implements Observer {
     private final int preferredWidth;
     private final int preferredHeight;
 
+    // The frame of the app.
+    private JFrame appFrame;
+
     // Error message to show when a null object is given.
     private static final String NULL_OBJECT_ERROR = "Object can not be null";
 
@@ -43,11 +47,13 @@ public class GraphView extends JPanel implements Observer {
      * @param model The graph model to represent.
      * @param width The preferred width of this GraphView.
      * @param height The preferred height of this GraphView.
+     * @param appFrame The application JFrame.
      */
-    public GraphView(Graph model, int width, int height) {
+    public GraphView(Graph model, int width, int height, JFrame appFrame) {
         this.model = Objects.requireNonNull(model, "Graph can not be null");
         this.preferredWidth = width;
         this.preferredHeight = height;
+        this.appFrame = appFrame;
         
         if (this.model.size() != 0) {
             this.nodeViews = new ArrayList<>();
@@ -88,5 +94,14 @@ public class GraphView extends JPanel implements Observer {
             g2d.drawString(node.getTitle(), 100, y);
             y += 50;
         }
+    }
+
+    /**
+     * Returns the application frame.
+     *
+     * @return The application JFrame.
+     */
+    public JFrame getAppFrame() {
+        return this.appFrame;
     }
 }

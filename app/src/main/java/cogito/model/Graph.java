@@ -10,7 +10,11 @@ import java.util.Set;
 import cogito.view.Observer;
 
 /**
- * Encapsulates relations between Nodes.
+ * Encapsulates relations between Nodes in a graph space.
+ *
+ * A graph space is a XY coordinate system, where values of x increase from left
+ * to right and values of y increase from top to bottom (note the difference
+ * with traditional XY coordinate systems).
  */
 public class Graph implements Observable {
 

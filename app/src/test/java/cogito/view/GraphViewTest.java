@@ -15,7 +15,7 @@ class GraphViewTest {
 
         @BeforeEach
         void createNewGraphView() {
-            sut = new GraphView(new Graph(), 0, 0);
+            sut = new GraphView(new Graph(), 0, 0, null);
         }
 
         @Test
