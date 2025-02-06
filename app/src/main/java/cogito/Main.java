@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Files;
 import cogito.view.MainScreen;
 import cogito.view.FrameManager;
-import cogito.util.DataSaver;
+import cogito.util.DataManager;
 
 /**
  * Entry class of the program.
@@ -26,10 +26,10 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            Path instalDir = DataSaver.getInstalDir();
+            Path instalDir = DataManager.getInstalDir();
             if (Files.notExists(instalDir))
                 Files.createDirectory(instalDir);
-            Path graphDir = DataSaver.getGraphsDir();
+            Path graphDir = DataManager.getGraphsDir();
             if (Files.notExists(graphDir))
                 Files.createDirectory(graphDir);
         } catch(Exception e) {

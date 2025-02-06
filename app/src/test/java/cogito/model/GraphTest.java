@@ -15,7 +15,7 @@ class GraphTest {
     class DummyObserver implements Observer {
         boolean updated = false;
 
-        public void update(Object object) {
+        public void updateWithData(Object object) {
             updated = true;
         }
     }
@@ -165,6 +165,23 @@ class GraphTest {
         void unsubscribeWithNullThrowsNPE() {
             TestUtils.assertThrowsNPEWithMsg("Observer can not be null",
                     () -> sut.unsubscribe(null));
+        }
+
+        @Test
+        void getNodesReturnsEmptyListOnEmptyGraph() {
+            assertTrue(sut.getNodes().isEmpty());
+        }
+
+        @Test
+        void getNodesOnGraphWithTwoNodesReturnsListOfSizeTwo() {
+            Node n1 = new Node("test");
+            Node n2 = new Node("test");
+            sut.add(n1);
+            sut.add(n2);
+            List<Node> nodes = sut.getNodes();
+            assertEquals(2, nodes.size());
+            assertTrue(nodes.contains(n1));
+            assertTrue(nodes.contains(n2));
         }
 
         @Nested

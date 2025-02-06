@@ -11,8 +11,8 @@ import cogito.model.Graph;
 public class GraphEditor extends Screen {
 
     // Preferred dimensions of a GraphEditor
-    private static final int PREFERRED_WIDTH = 800;
-    private static final int PREFERRED_HEIGHT = 600;
+    private static final int PREFERRED_WIDTH = 1920;
+    private static final int PREFERRED_HEIGHT = 1080;
 
     // The model to edit
     private final Graph model;
@@ -27,9 +27,15 @@ public class GraphEditor extends Screen {
 
         this.setLayout(new BorderLayout());
 
-        this.add(new EditButtonsBar(), BorderLayout.NORTH);
-        this.add(new GraphView(), BorderLayout.WEST);
-        this.add(new DetailedNodeView(), BorderLayout.EAST);
+        this.add(new EditButtonsBar(PREFERRED_WIDTH, 50),
+                BorderLayout.NORTH);
+        this.add(
+          new GraphView(new Graph(), PREFERRED_WIDTH - 400,
+                  PREFERRED_HEIGHT - 50),
+          BorderLayout.CENTER
+        );
+        this.add(new DetailedNodeView(400, PREFERRED_HEIGHT - 50),
+                BorderLayout.EAST);
     }
 
     @Override

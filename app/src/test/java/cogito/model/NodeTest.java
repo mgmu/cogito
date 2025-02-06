@@ -14,7 +14,7 @@ class NodeTest {
     class DummyObserver implements Observer {
         boolean updated = false;
 
-        public void update(Object object) {
+        public void updateWithData(Object object) {
             updated = true;
         }
     }
