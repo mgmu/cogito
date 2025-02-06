@@ -228,6 +228,12 @@ class GraphTest {
                 sut.updateObservers();
                 assertFalse(obs.updated);
             }
+
+            @Test
+            void observerSubscribedIsUpdatedAfterAddingANode() {
+                sut.add(new Node("test"));
+                assertTrue(obs.updated);
+            }
         }
 
         @Nested
@@ -275,6 +281,24 @@ class GraphTest {
             @Test
             void getNodesLinkedToNodeWithNoLinksReturnsTheEmptyList() {
                 assertTrue(sut.getNodesLinkedTo(node).isEmpty());
+            }
+
+            @Test
+            void observerIsUpdatedAfterRemovingANode() {
+                DummyObserver obs = new DummyObserver();
+                sut.subscribe(obs);
+                sut.remove(node);
+                assertTrue(obs.updated);
+            }
+
+            @Test
+            void observerIsUpdatedAfterLinkingTwoNodes() {
+                Node other = new Node("test");
+                sut.add(other);
+                DummyObserver obs = new DummyObserver();
+                sut.subscribe(obs);
+                sut.link(node, other);
+                assertTrue(obs.updated);
             }
         }
     }

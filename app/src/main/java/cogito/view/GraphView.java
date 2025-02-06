@@ -21,18 +21,19 @@ import cogito.model.Node;
  */
 public class GraphView extends JPanel implements Observer {
 
-    // The model represented by this GraphView
+    // The model represented by this GraphView.
     private Graph model;
     private ArrayList<NodeView> nodeViews;
     private ArrayList<Pair<Point, Point>> linkViews;
 
+    // Preferred dimensions of this GraphView.
     private final int preferredWidth;
     private final int preferredHeight;
 
-    // Error message to show when a null object is given
+    // Error message to show when a null object is given.
     private static final String NULL_OBJECT_ERROR = "Object can not be null";
 
-    // Error message to show when a given object is not a graph
+    // Error message to show when a given object is not a graph.
     private static final String NOT_A_GRAPH_ERROR =
         "Object must be an instance of Graph";
 
@@ -66,7 +67,8 @@ public class GraphView extends JPanel implements Observer {
         if (!(object instanceof Graph))
             throw new IllegalArgumentException(NOT_A_GRAPH_ERROR);
         this.model = (Graph)object;
-        // does nothing with new data for the moment
+        System.out.println("updated view");
+        this.repaint();
     }
 
     @Override
@@ -78,5 +80,13 @@ public class GraphView extends JPanel implements Observer {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
+
+        List<Node> nodes = this.model.getNodes();
+        int y = 100;
+        for (Node node: nodes) {
+            System.out.println("drawing node: " + node.getTitle());
+            g2d.drawString(node.getTitle(), 100, y);
+            y += 50;
+        }
     }
 }

@@ -31,6 +31,7 @@ public abstract class GraphEditorMouseController extends MouseAdapter {
      *
      * @param view The GraphView this controller listens to, not null.
      * @param model The Graph this controller acts on, not null.
+     * @throws NullPointerException if view or model are null.
      */
     public GraphEditorMouseController(GraphView view, Graph model) {
         this.view = Objects.requireNonNull(view, NULL_GRAPH_VIEW_ERROR);

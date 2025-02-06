@@ -91,6 +91,7 @@ public class Graph implements Observable {
         if (this.contains(node))
             throw new IllegalArgumentException(NODE_ALREADY_IN_GRAPH_ERROR);
         this.adj.put(node, new ArrayList<>());
+        this.updateObservers();
     }
 
     /**
@@ -105,6 +106,7 @@ public class Graph implements Observable {
         if (!this.contains(node))
             throw new IllegalArgumentException(ABSENT_NODE_ERROR);
         this.adj.remove(node);
+        this.updateObservers();
     }
 
     /**
@@ -129,6 +131,7 @@ public class Graph implements Observable {
             throw new IllegalArgumentException(SELF_LINK_ERROR);
         List<Node> value = this.adj.get(src);
         value.add(dst);
+        this.updateObservers();
     }
 
     /**

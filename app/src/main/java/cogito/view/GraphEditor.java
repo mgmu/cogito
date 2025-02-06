@@ -17,6 +17,9 @@ public class GraphEditor extends Screen {
     // The model to edit
     private final Graph model;
 
+    // The view of the model to edit.
+    private final GraphView graphView;
+
     // Error message to show when graph is null
     private static final String NULL_GRAPH_ERROR = "Graph can not be null";
 
@@ -24,16 +27,17 @@ public class GraphEditor extends Screen {
         super(frameManager);
         Objects.requireNonNull(model, NULL_GRAPH_ERROR);
         this.model = model;
+        this.graphView = new GraphView(this.model, PREFERRED_WIDTH - 400,
+                PREFERRED_HEIGHT - 50);
+        this.model.subscribe(this.graphView);
 
         this.setLayout(new BorderLayout());
 
-        this.add(new EditButtonsBar(PREFERRED_WIDTH, 50),
-                BorderLayout.NORTH);
         this.add(
-          new GraphView(new Graph(), PREFERRED_WIDTH - 400,
-                  PREFERRED_HEIGHT - 50),
-          BorderLayout.CENTER
+          new EditButtonsBar(this.graphView, this.model, PREFERRED_WIDTH, 50),
+          BorderLayout.NORTH
         );
+        this.add(this.graphView, BorderLayout.CENTER);
         this.add(new DetailedNodeView(400, PREFERRED_HEIGHT - 50),
                 BorderLayout.EAST);
     }

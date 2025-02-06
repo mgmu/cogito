@@ -1,29 +1,69 @@
 package cogito.view;
 
+import java.util.Objects;
+import java.awt.Dimension;
 import javax.swing.JPanel;
 import javax.swing.JButton;
-import java.awt.Dimension;
+import cogito.controller.GraphEditorMouseController;
+import cogito.controller.AddNodeController;
+import cogito.model.Graph;
+import cogito.view.GraphView;
 
 /**
  * Contains the buttons that edit the graph.
  */
 public class EditButtonsBar extends JPanel {
     
+    // Preferred dimensions of this bar.
     private final int preferredWidth;
     private final int preferredHeight;
+
+    // The mouse controller of the graph editor.
+    private GraphEditorMouseController currentController = null;
+
+    // The view of the edited graph.
+    private GraphView graphView;
+
+    // The graph model represented in the graph editor.
+    private Graph graphModel;
+
+    // Error messages
+    private static final String NULL_GRAPH_VIEW_ERROR =
+        "GraphView can not be null";
+    private static final String NULL_GRAPH_ERROR = "Graph can not be null";
 
     /**
      * Creates a new buttons bar populated with supported edit operations.
      *
+     * @param graphView The view of the graph model, not null.
+     * @param graphModel The graph model, not null.
      * @param width The preferred width of the bar.
      * @param height The preferred height of the bar.
      */
-    public EditButtonsBar(int width, int height) {
+    public EditButtonsBar(GraphView graphView, Graph graphModel, int width,
+            int height) {
+        this.graphView = Objects.requireNonNull(graphView,
+                NULL_GRAPH_VIEW_ERROR);
+        this.graphModel = Objects.requireNonNull(graphModel, NULL_GRAPH_ERROR);
         this.preferredWidth = width;
         this.preferredHeight = height;
-        JButton doNothing = new JButton("Do nothing");
 
-        this.add(doNothing);
+        // Add node button
+        JButton addNodeButton = new JButton("Add node");
+        addNodeButton.addActionListener(ae -> {
+                    if (this.currentController != null) {
+                        if (this.currentController instanceof AddNodeController)
+                            return;
+                        this.currentController.disable();
+                    }
+                    this.currentController = new AddNodeController(
+                      this.graphView,
+                      this.graphModel
+                    );
+                    this.currentController.enable();
+                }
+        );
+        this.add(addNodeButton);
     }
 
     @Override
