@@ -1,27 +1,36 @@
 package cogito.view;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import cogito.model.Graph;
+import cogito.TestUtils;
 
 class GraphViewTest {
 
-    @Test
-    void updateOfGraphViewWithNullThrowsNPE() {
-        GraphView sut = new GraphView(new Graph());
-        NullPointerException npe = assertThrows(NullPointerException.class,
-                () -> sut.updateWithData(null));
-        assertEquals("Object can not be null", npe.getMessage());
-    }
+    @Nested
+    class WithNew {
+        GraphView sut;
 
-    @Test
-    void updateOfGraphViewWithNonNullObjectButNotGraphThrowsIAE() {
-        GraphView sut = new GraphView(new Graph());
-        Integer i = 1;
-        IllegalArgumentException iae = assertThrows(
-          IllegalArgumentException.class,
-          () -> sut.updateWithData(i)
-        );
-        assertEquals("Object must be an instance of Graph", iae.getMessage());
+        @BeforeEach
+        void createNewGraphView() {
+            sut = new GraphView(new Graph(), 0, 0);
+        }
+
+        @Test
+        void updateOfGraphViewWithNullThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg("Object can not be null",
+                    () -> sut.updateWithData(null));
+        }
+
+        @Test
+        void updateOfGraphViewWithNonNullObjectButNotGraphThrowsIAE() {
+            Integer i = 1;
+            TestUtils.assertThrowsIAEWithMsg(
+              "Object must be an instance of Graph",
+              () -> sut.updateWithData(i)
+            );
+        }
     }
 }
