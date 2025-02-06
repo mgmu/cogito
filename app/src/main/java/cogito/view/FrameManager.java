@@ -64,4 +64,13 @@ public class FrameManager {
         this.frame.revalidate();
         this.frame.repaint();
     }
+
+    /**
+     * Returns the frame of the application.
+     *
+     * @return The application JFrame.
+     */
+    public JFrame getAppFrame() {
+        return this.frame;
+    }
 }
