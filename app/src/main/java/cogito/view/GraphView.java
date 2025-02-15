@@ -109,4 +109,13 @@ public class GraphView extends JPanel implements Observer {
     public JFrame getAppFrame() {
         return this.appFrame;
     }
+
+    /**
+     * Returns the application frame.
+     *
+     * @return The application JFrame.
+     */
+    public JFrame getAppFrame() {
+        return this.appFrame;
+    }
 }
