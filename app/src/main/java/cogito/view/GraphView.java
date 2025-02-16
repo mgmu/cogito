@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Line2D;
 import java.awt.FontMetrics;
 import cogito.util.Pair;
 import cogito.model.Graph;
@@ -26,10 +27,8 @@ public class GraphView extends JPanel implements Observer {
 
     // The model represented by this GraphView.
     private Graph model;
+    private List<NodeView> nodeViews;
     private ArrayList<Pair<Point, Point>> linkViews;
-
-    // The margin around the title
-    private final int TITLE_MARGIN = 5;
 
     // Preferred dimensions of this GraphView.
     private final int preferredWidth;
@@ -38,10 +37,8 @@ public class GraphView extends JPanel implements Observer {
     // The frame of the app.
     private JFrame appFrame;
 
-    // Error message to show when a null object is given.
+    // Error messages
     private static final String NULL_OBJECT_ERROR = "Object can not be null";
-
-    // Error message to show when a given object is not a graph.
     private static final String NOT_A_GRAPH_ERROR =
         "Object must be an instance of Graph";
 
@@ -58,7 +55,10 @@ public class GraphView extends JPanel implements Observer {
         this.preferredWidth = width;
         this.preferredHeight = height;
         this.appFrame = appFrame;
+        this.nodeViews = new ArrayList<>();
+        this.loadNodeViews();
         this.linkViews = new ArrayList<>();
+        this.loadLinkViews();
     }
 
     @Override
@@ -67,8 +67,23 @@ public class GraphView extends JPanel implements Observer {
         if (!(object instanceof Graph))
             throw new IllegalArgumentException(NOT_A_GRAPH_ERROR);
         this.model = (Graph)object;
-
+        for (NodeView nv: this.nodeViews) {
+            nv.getModel().unsubscribe(nv);
+        }
+        this.nodeViews.clear();
+        this.loadNodeViews();
+        this.linkViews.clear();
+        this.loadLinkViews();
         this.repaint();
+    }
+
+    // Loads the node views
+    private void loadNodeViews() {
+        for (Node node: this.model.getNodes()) {
+            NodeView nv = new NodeView(node);
+            node.subscribe(nv);
+            this.nodeViews.add(nv);
+        }
     }
 
     @Override
@@ -81,16 +96,23 @@ public class GraphView extends JPanel implements Observer {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
 
-        for (Node node: this.model.getNodes()) {
-            String title = node.getTitle();
-            FontMetrics fontMetrics = g2d.getFontMetrics();
-            Rectangle2D titleBounds = fontMetrics.getStringBounds(title, g2d);
-            int titleWidth = (int)titleBounds.getWidth();
-            int titleHeight = (int)titleBounds.getHeight();
-            int titleCenterX = node.getX() - titleWidth / 2;
-            // drawString needs y coordinate of base line
-            int titleCenterY = node.getY() + titleHeight / 2;
-            g2d.drawString(title, titleCenterX, titleCenterY);
+        for (NodeView nv: this.nodeViews) {
+            String title = nv.getModel().getTitle();
+            nv.setGraphics2D(g2d);
+            nv.computeTitleDimensions();
+            g2d.drawString(
+              title,
+              nv.getTitleBaseLineX(),
+              nv.getTitleBaseLineY()
+            );
+        }
+
+        for (Pair<Point, Point> link: this.linkViews) {
+            // draw links
+            Point src = link.getKey();
+            Point dst = link.getValue();
+            Line2D.Double line = new Line2D.Double(src.x, src.y, dst.x, dst.y);
+            g2d.draw(line);
         }
     }
 
@@ -101,5 +123,17 @@ public class GraphView extends JPanel implements Observer {
      */
     public JFrame getAppFrame() {
         return this.appFrame;
+    }
+
+    // Populates linkViews with segments corresponding to node links
+    private void loadLinkViews() {
+        for (Node node: this.model.getNodes()) {
+            List<Node> neighbors = this.model.getNodesLinkedTo(node);
+            Point src = new Point(node.getX(), node.getY());
+            for (Node neighbor: neighbors) {
+                Point dst = new Point(neighbor.getX(), neighbor.getY());
+                this.linkViews.add(new Pair<>(src, dst));
+            }
+        }
     }
 }
