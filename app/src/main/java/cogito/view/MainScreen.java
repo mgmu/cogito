@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import cogito.model.Graph;
+import cogito.model.Node;
 
 /**
  * The first screen of the GUI.
@@ -28,12 +29,24 @@ public class MainScreen extends Screen {
     public MainScreen(FrameManager frameManager) {
         super(frameManager);
 
+        // debug
+        Graph model = new Graph();
+        Node n1 = new Node("t1", 100, 100);
+        Node n2 = new Node("t2", 150, 100);
+        Node n3 = new Node("t3", 125, 150);
+        model.add(n1);
+        model.add(n2);
+        model.add(n3);
+        model.link(n1, n2);
+        model.link(n2, n3);
+        model.link(n3, n1);
+
         // Creates a new project
         JButton newButton = createNamedButton(
           "New",
           KeyEvent.VK_N,
           ae -> this.frameManager.setCurrentScreen(
-            new GraphEditor(this.frameManager, new Graph())
+            new GraphEditor(this.frameManager, model/*new Graph()*/)
           )
         );
 

@@ -5,9 +5,8 @@ public interface Observer {
     /**
      * Updates this Observer with the specified object.
      *
-     * @param object An object, not null, must be an instance of Graph.
+     * @param object An object, not null.
      * @throws NullPointerException if object is null.
-     * @throws IllegalArgumentException if object is not a Graph.
      */
     public void updateWithData(Object object);
 }
