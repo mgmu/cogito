@@ -10,6 +10,8 @@ import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.FontMetrics;
 import cogito.util.Pair;
 import cogito.model.Graph;
 import cogito.model.Node;
@@ -24,8 +26,10 @@ public class GraphView extends JPanel implements Observer {
 
     // The model represented by this GraphView.
     private Graph model;
-    private ArrayList<NodeView> nodeViews;
     private ArrayList<Pair<Point, Point>> linkViews;
+
+    // The margin around the title
+    private final int TITLE_MARGIN = 5;
 
     // Preferred dimensions of this GraphView.
     private final int preferredWidth;
@@ -54,17 +58,7 @@ public class GraphView extends JPanel implements Observer {
         this.preferredWidth = width;
         this.preferredHeight = height;
         this.appFrame = appFrame;
-        this.nodeViews = new ArrayList<>();
         this.linkViews = new ArrayList<>();
-
-        if (this.model.size() != 0) {
-            List<Node> nodes = this.model.getNodes();
-            for (Node node: nodes) {
-                NodeView nv = new NodeView(node);
-                this.nodeViews.add(nv);
-                node.subscribe(nv);
-            }
-        }
     }
 
     @Override
@@ -73,16 +67,6 @@ public class GraphView extends JPanel implements Observer {
         if (!(object instanceof Graph))
             throw new IllegalArgumentException(NOT_A_GRAPH_ERROR);
         this.model = (Graph)object;
-
-        for (NodeView nodeView: this.nodeViews)
-            nodeView.unsubscribeModel();
-
-        List<Node> nodes = this.model.getNodes();
-        for (Node node: nodes) {
-            NodeView nv = new NodeView(node);
-            this.nodeViews.add(nv);
-            node.subscribe(nv);
-        }
 
         this.repaint();
     }
@@ -97,17 +81,17 @@ public class GraphView extends JPanel implements Observer {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
 
-        for (NodeView nv: this.nodeViews)
-            g2d.draw(nv);
-    }
-
-    /**
-     * Returns the application frame.
-     *
-     * @return The application JFrame.
-     */
-    public JFrame getAppFrame() {
-        return this.appFrame;
+        for (Node node: this.model.getNodes()) {
+            String title = node.getTitle();
+            FontMetrics fontMetrics = g2d.getFontMetrics();
+            Rectangle2D titleBounds = fontMetrics.getStringBounds(title, g2d);
+            int titleWidth = (int)titleBounds.getWidth();
+            int titleHeight = (int)titleBounds.getHeight();
+            int titleCenterX = node.getX() - titleWidth / 2;
+            // drawString needs y coordinate of base line
+            int titleCenterY = node.getY() + titleHeight / 2;
+            g2d.drawString(title, titleCenterX, titleCenterY);
+        }
     }
 
     /**
