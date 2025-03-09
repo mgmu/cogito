@@ -40,6 +40,8 @@ public class Graph implements Observable {
         "Observer already subscribed";
     private static final String ABSENT_OBSERVER_ERROR =
         "Observer not subscribed";
+    private static final String NEGATIVE_RADIUS_ERROR =
+        "Radius must be greater than or equal to 0";
 
     /**
      * Creates a new empty graph.
@@ -198,5 +200,34 @@ public class Graph implements Observable {
         List<Node> nodesAsList = new ArrayList<>();
         nodesAsList.addAll(nodes);
         return nodesAsList;
+    }
+
+    /**
+     * Returns the first node around the given location, or null if there is
+     * none.
+     *
+     * This function searches for a node inside a circle of given radius around
+     * the given location. If there is none, null is returned. If there are
+     * multiple candidates, the first node encountered in the traversal is
+     * returned.
+     * One way to get the node exactly at the given location is to pass a radius
+     * equal to 0.
+     *
+     * @param x The x coordinate of the location.
+     * @param y The y coordinate of the location.
+     * @param radius The radius of the search circle, must be greater than or
+     *        equal to 0.
+     * @throws IllegalArgumentException if radius is strictly inferior to 0.
+     * @return The first node encountered inside the circle of given radius
+     *         around the given location, or null if there is none.
+     */
+    public Node getNodeAt(int x, int y, int radius) {
+        if (radius < 0)
+            throw new IllegalArgumentException(NEGATIVE_RADIUS_ERROR);
+        for (Node node: this.adj.keySet()) {
+            if (node.distanceFrom(x, y) <= radius)
+                return node;
+        }
+        return null;
     }
 }

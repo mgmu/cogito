@@ -2,12 +2,14 @@ package cogito.view;
 
 import java.util.Objects;
 import java.awt.Dimension;
+import java.awt.Color;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import cogito.controller.GraphEditorMouseController;
 import cogito.controller.AddNodeController;
+import cogito.controller.SelectNodeController;
 import cogito.model.Graph;
-import cogito.view.GraphView;
 
 /**
  * Contains the buttons that edit the graph.
@@ -27,6 +29,8 @@ public class EditButtonsBar extends JPanel {
     // The graph model represented in the graph editor.
     private Graph graphModel;
 
+    private DetailedNodeView detailedNodeView;
+
     // Error messages
     private static final String NULL_GRAPH_VIEW_ERROR =
         "GraphView can not be null";
@@ -40,30 +44,58 @@ public class EditButtonsBar extends JPanel {
      * @param width The preferred width of the bar.
      * @param height The preferred height of the bar.
      */
-    public EditButtonsBar(GraphView graphView, Graph graphModel, int width,
-            int height) {
+    public EditButtonsBar(
+      GraphView graphView,
+      DetailedNodeView detailedNodeView,
+      Graph graphModel,
+      int width,
+      int height
+    ) {
         this.graphView = Objects.requireNonNull(graphView,
                 NULL_GRAPH_VIEW_ERROR);
+        this.detailedNodeView = Objects.requireNonNull(detailedNodeView,
+                "Detailed node view can not be null");
         this.graphModel = Objects.requireNonNull(graphModel, NULL_GRAPH_ERROR);
         this.preferredWidth = width;
         this.preferredHeight = height;
 
         // Add node button
         JButton addNodeButton = new JButton("Add node");
-        addNodeButton.addActionListener(ae -> {
-                    if (this.currentController != null) {
-                        if (this.currentController instanceof AddNodeController)
-                            return;
-                        this.currentController.disable();
-                    }
-                    this.currentController = new AddNodeController(
-                      this.graphView,
-                      this.graphModel
-                    );
-                    this.currentController.enable();
-                }
+        addNodeButton.addActionListener(
+          ae -> {
+              if (this.currentController != null) {
+                  if (this.currentController instanceof AddNodeController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new AddNodeController(
+                this.graphView,
+                this.graphModel
+              );
+              this.currentController.enable();
+          }
         );
         this.add(addNodeButton);
+
+        // Select node button
+        JButton selectNodeButton = new JButton("Select node");
+        selectNodeButton.addActionListener(
+          ae -> {
+              if (this.currentController != null) {
+                  if (this.currentController instanceof SelectNodeController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new SelectNodeController(
+                this.graphView,
+                this.detailedNodeView,
+                this.graphModel
+              );
+              this.currentController.enable();
+          }
+        );
+        this.add(selectNodeButton);
+        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     @Override

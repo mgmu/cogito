@@ -38,11 +38,30 @@ class NodeTest {
     void newNodeWithTitleInfoDoesNotThrowException() {
         assertDoesNotThrow(() -> new Node("info"));
     }
+    
+    @Test
+    void newNodeWithNullTitleThrowsNPE() {
+        TestUtils.assertThrowsNPEWithMsg("Node title can not be null",
+                () -> new Node(null));
+    }
 
     @Test
-    void getTitleOfNodeWithTitleInfoReturnsInfo() {
-        Node sut = new Node("info");
-        assertEquals("info", sut.getTitle());
+    void newNodeWithNullInformationThrowsNPE() {
+        TestUtils.assertThrowsNPEWithMsg("Textual information can not be null",
+                () -> new Node("test", null));
+    }
+
+    @Test
+    void newNodeWithLongInformationThrowsIAE() {
+        TestUtils.assertThrowsIAEWithMsg(
+          "Text length can not exceed 5000 characters",
+          () -> {
+              String longInfo = "";
+              for (int i = 0; i <= 5000; i++)
+                  longInfo += "a";
+              new Node("test", longInfo);
+          }
+        );
     }
 
     @Nested
@@ -62,6 +81,29 @@ class NodeTest {
         @Test
         void nodeYShouldBe10() {
             assertEquals(10, sut.getY());
+        }
+
+        @Test
+        void distanceFrom00Is11dot18() {
+            assertEquals(11.18, sut.distanceFrom(0, 0));
+        }
+
+        @Test
+        void getInformationOfNodeWithNoInformationReturnsTheEmptyString() {
+            assertEquals("", sut.getInformation());
+        }
+
+        @Test
+        void setInformationTooLongThowsIAE() {
+            TestUtils.assertThrowsIAEWithMsg(
+              "Text length can not exceed 5000 characters", 
+              () -> {
+                  String longInfo = "";
+                  for (int i = 0; i <= 5000; i++)
+                      longInfo += "a";
+                  sut.setInformation(longInfo);
+              }
+            );
         }
 
         @Nested
@@ -132,77 +174,6 @@ class NodeTest {
             TestUtils.assertThrowsNPEWithMsg("Node title can not be null",
                     () -> sut.setTitle(null));
         }
-
-        @Test
-        void nodeShouldHaveAGetEntries() {
-            assertNotNull(sut.getEntries(),
-                    "Node should have a getEntries method");
-        }
-
-        @Test
-        void getEntriesOnNewNodeReturnsTheEmptyList() {
-            assertTrue(sut.getEntries().isEmpty());
-        }
-
-        @Test
-        void nodeEntriesSizeIncreasesBy1WhenAddsValidEntry() {
-            List<String> entries = sut.getEntries();
-            assertEquals(0, entries.size());
-            sut.add("entry 1");
-            entries = sut.getEntries();
-            assertEquals(1, entries.size());
-        }
-
-        @Test
-        void addThrowsNPEIfNewEntryIsNull() {
-            TestUtils.assertThrowsNPEWithMsg("Entry can not be null",
-                    () -> sut.add(null));
-        }
-
-        @Test
-        void addThrowsIAEIfEntryIsEmpty() {
-            TestUtils.assertThrowsIAEWithMsg("Entry can not be empty",
-                    () -> sut.add(""));
-        }
-
-        @Test
-        void addThrowsIAEIfEntryIsLongerThan500Chars() {
-            TestUtils.assertThrowsIAEWithMsg(
-              "Entry length can not exceed 500 chars",
-              () -> {
-                  String longEntry = new String("");
-                  for (int i = 0; i <= 500; i++)
-                      longEntry += "a";
-                  sut.add(longEntry);
-              }
-            );
-        }
-
-        @Test
-        void removeWithNegativeValueThrowsIllegalArgumentException() {
-            TestUtils.assertThrowsIAEWithMsg("Invalid entry index",
-                    () -> sut.remove(-1));
-        }
-
-        @Test
-        void removeWithIndexOutOfRangeThrowsIllegalArgumentException() {
-            sut.add("entry 1");
-            sut.add("entry 2");
-            TestUtils.assertThrowsIAEWithMsg("Invalid entry index",
-                    () -> sut.remove(2));
-        }
-
-        @Test
-        void removeWithValidIndexRemovesCorrespondingEntry() {
-            sut.add("entry 1");
-            sut.add("entry 2");
-            sut.add("entry 3");
-            sut.remove(1);
-            List<String> entries = sut.getEntries();
-            assertEquals(2, entries.size());
-            assertEquals("entry 1", entries.get(0));
-            assertEquals("entry 3", entries.get(1));
-        }
         
         @Test
         void subscribeWithNullThrowsNPE() {
@@ -272,90 +243,6 @@ class NodeTest {
                 sut.update(obs);
                 assertTrue(obs.updated);
             }
-
-            @Test
-            void addEntryUpdatesObservers() {
-                DummyObserver obs2 = new DummyObserver();
-                sut.subscribe(obs);
-                sut.subscribe(obs2);
-                sut.add("entry1");
-                assertTrue(obs.updated);
-                assertTrue(obs2.updated);
-            }
-
-            @Test
-            void removeEntryUpdatesObservers() {
-                DummyObserver obs2 = new DummyObserver();
-                sut.add("entry1");
-                sut.subscribe(obs);
-                sut.subscribe(obs2);
-                sut.remove(0);
-                assertTrue(obs.updated);
-                assertTrue(obs2.updated);
-            }
         }
-    }
-
-    @Test
-    void newNodeWithNullTitleThrowsNPE() {
-        TestUtils.assertThrowsNPEWithMsg("Node title can not be null",
-                () -> new Node(null));
-    }
-
-    @Test
-    void getEntriesOnNodeWith2EntriesReturnsAListOfSize2() {
-        List<String> entries = new ArrayList<>();
-        entries.add("entry 1");
-        entries.add("entry 2");
-        Node sut = new Node("test", entries);
-        assertEquals(2, sut.getEntries().size());
-    }
-
-    @Test
-    void newNodeWithNullListThrowsNPE() {
-        TestUtils.assertThrowsNPEWithMsg(
-          "New node can not be initialized with null list",
-          () -> new Node("test", null)
-        );
-    }
-
-    @Test
-    void newNodeWithNullEntriesThrowsNPE() {
-        List<String> dummyEntries = new ArrayList<>();
-        dummyEntries.add("not null");
-        dummyEntries.add(null);
-        dummyEntries.add("not null again");
-        TestUtils.assertThrowsNPEWithMsg("Entry can not be null",
-                () -> new Node("test", dummyEntries));
-    }
-
-    @Test
-    void newNodeWithMoreThan500EntriesThrowsIllegalArgumentException() {
-        List<String> dummyEntries = new ArrayList<>();
-        for (int i = 0; i <= 500; i++)
-            dummyEntries.add("a");
-        TestUtils.assertThrowsIAEWithMsg("Node can contain at most 500 entries",
-                () -> new Node("test", dummyEntries));
-    }
-
-    @Test
-    void newNodeWithEmtpyEntryThrowsIAE() {
-        List<String> dummyEntries = new ArrayList<>();
-        dummyEntries.add("");
-        TestUtils.assertThrowsIAEWithMsg("Entry can not be empty",
-                () -> new Node("test", dummyEntries));
-    }
-
-    @Test
-    void newNodeWithEntryLongerThan500CharsThrowsIAE() {
-        List<String> dummyEntries = new ArrayList<>();
-        String test = new String("");
-        for (int i = 0; i <= 500; i++)
-            test = test + "a";
-        dummyEntries.add(test);
-        TestUtils.assertThrowsIAEWithMsg(
-          "Entry length can not exceed 500 chars",
-          () -> new Node("test", dummyEntries)
-        );
     }
 }

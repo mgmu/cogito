@@ -1,6 +1,10 @@
 # Emacs autosaves
 *~
 
+# Emacs backups
+.#*
+#*#
+
 # Ignore Gradle project-specific cache directory
 .gradle
 
