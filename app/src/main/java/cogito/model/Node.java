@@ -1,26 +1,26 @@
 package cogito.model;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.UUID;
 import cogito.view.Observer;
 
 /**
- * Encapsulates text entries related to a title, at a certain position in the
- * graph space.
+ * Encapsulates textual information related to a title, at a certain position in
+ * the graph space.
  *
  * The title of a Node is mandatory, must be not empty and have a length of at
- * most 100 characters. A Node can encapsulate at most 500 entries, each of them
- * must be not empty and have a length of at most 500 characters.
+ * most 100 characters. A Node can encapsulate at most 5000 characters of
+ * textual information.
  */
 public class Node implements Observable {
 
     // The title, length inside [1; 100]
     private String title;
 
-    // The entries, size inside [0; 500], each entry length inside [1; 500]
-    private final List<String> entries;
+    // The textual information stored in this Node
+    private String information;
 
     // The x coordinate of this Node in the graph space
     private int x;
@@ -40,31 +40,22 @@ public class Node implements Observable {
     // Maximal title length
     private static final int MAX_TITLE_LEN = 100;
 
-    // Minimal entry length
-    private static final int MIN_ENTRY_LEN = 1;
+    // Minimal textual information length
+    private static final int MIN_TEXT_LEN = 0;
 
-    // Maximal entry length
-    private static final int MAX_ENTRY_LEN = 500;
-
-    // Maximal number of entries per node
-    private static final int MAX_NB_ENTRIES = 500;
-
-    // Error message to show when title is too short
-    private static final String SHORT_TITLE_ERROR =
-        "Node title can not be empty";
+    // Maximal textual information length
+    private static final int MAX_TEXT_LEN = 5000;
 
     // Error messages
+    private static final String SHORT_TITLE_ERROR =
+        "Node title can not be empty";
     private static final String LONG_TITLE_ERROR =
         "Node title can not be longer than 100 characters";
     private static final String NULL_TITLE_ERROR = "Node title can not be null";
-    private static final String NULL_LIST_ENTRY_ERROR =
-        "New node can not be initialized with null list";
-    private static final String NULL_ENTRY_ERROR = "Entry can not be null";
-    private static final String MAX_NB_ENTRIES_ERROR =
-        "Node can contain at most 500 entries";
-    private static final String SHORT_ENTRY_ERROR = "Entry can not be empty";
-    private static final String LONG_ENTRY_ERROR =
-        "Entry length can not exceed 500 chars";
+    private static final String NULL_TEXT_ERROR =
+        "Textual information can not be null";
+    private static final String LONG_TEXT_ERROR =
+        "Text length can not exceed 5000 characters";
     private static final String NULL_OBSERVER_ERROR =
         "Observer can not be null";
     private static final String ALREADY_SUBSCRIBED_ERROR =
@@ -73,7 +64,7 @@ public class Node implements Observable {
         "Observer not subscribed";
 
     /**
-     * Creates a Node of given title with no entries, at (0, 0).
+     * Creates a Node of given title with no text information, at (0, 0).
      *
      * @param title A string of length greater or equal to 1 and inferior or
      *        equal to 100, not null.
@@ -84,7 +75,7 @@ public class Node implements Observable {
     public Node(String title) {
         checkTitleValidity(title);
         this.title = title;
-        this.entries = new ArrayList<>();
+        this.information = "";
         this.observers = new ArrayList<>();
         this.identifier = UUID.randomUUID();
         this.x = 0;
@@ -92,7 +83,7 @@ public class Node implements Observable {
     }
 
     /**
-     * Creates a Node of given title with no entries, at (x, y).
+     * Creates a Node of given title with text information, at (x, y).
      *
      * @param title A string of length greater or equal to 1 and inferior or
      *        equal to 100, not null.
@@ -109,27 +100,21 @@ public class Node implements Observable {
     }
 
     /**
-     * Creates a Node of given title and entries.
+     * Creates a Node of given title and text information.
      *
      * @param title A string of length greater or equal to 1 and inferior or
      *        equal to 100, not null.
-     * @param entries A list that contains at most 500 strings, each of length
-     *        greater than 0 and less than or equal to 500.
-     * @throws NullPointerException if title or entries is null, or if an entry
-     *         is null.
+     * @param information A string of length of at most 5000 characters, not
+     *        null.
+     * @throws NullPointerException if title or information is null.
      * @throws IllegalArgumentException if title length is less than 1 or
-     *         greater than 100, or if at least one entry is empty or has a
-     *         length greater than 500 chars, or if the list of entries has more
-     *         than 500 elements.
+     *         greater than 100 or if information length is greater than 5000
+     *         characters.
      */
-    public Node(String title, List<String> entries) {
+    public Node(String title, String information) {
         this(title);
-        Objects.requireNonNull(entries, NULL_LIST_ENTRY_ERROR);
-        if (entries.size() > MAX_NB_ENTRIES)
-            throw new IllegalArgumentException(MAX_NB_ENTRIES_ERROR);
-        for (String entry: entries)
-            checkEntryValidity(entry);
-        this.entries.addAll(entries);
+        checkInformationValidity(information);
+        this.information = information;
     }
 
     /**
@@ -160,45 +145,17 @@ public class Node implements Observable {
     }
 
     /**
-     * Returns the entries of this Node.
+     * Returns the textual information encapsulated by this Node.
      *
-     * @return A list of strings of at most 500 elements, each string of length
-     *         greater than 0 and less or equal to 500.
+     * @return The information stored in this Node as a string.
      */
-    public List<String> getEntries() {
-        List<String> copyEntries = new ArrayList<>();
-        copyEntries.addAll(this.entries);
-        return copyEntries;
+    public String getInformation() {
+        return this.information;
     }
 
-    /**
-     * Adds an entry to this Node.
-     *
-     * @param newEntry A string of length greater than 0 and less or equal to
-     *        500, not null.
-     * @throws NullPointerException if newEntry is null.
-     * @throws IllegalArgumentException if newEntry has not a length greater
-     *         than 0 and less or equal 500.
-     */
-    public void add(String newEntry) {
-        checkEntryValidity(newEntry);
-        this.entries.add(newEntry);
-        this.updateObservers();
-    }
-
-    /**
-     * Removes the entry at given index.
-     *
-     * The first entry of this Node is at index 0.
-     *
-     * @param index An integer greater than 0 and less than getEntries().size().
-     * @throws IllegalArgumentException if index is out of bounds.
-     */
-    public void remove(int index) {
-        if (index < 0 || index >= this.entries.size())
-            throw new IllegalArgumentException("Invalid entry index");
-        this.entries.remove(index);
-        this.updateObservers();
+    public void setInformation(String newInformation) {
+        checkInformationValidity(newInformation);
+        this.information = newInformation;
     }
 
     @Override
@@ -274,16 +231,30 @@ public class Node implements Observable {
         this.y = newY;
     }
 
-    // Checks that newEntry length is in bounds and not null.
-    private void checkEntryValidity(String newEntry) {
-        checkStringValidity(newEntry, MIN_ENTRY_LEN, MAX_ENTRY_LEN,
-                NULL_ENTRY_ERROR, SHORT_ENTRY_ERROR, LONG_ENTRY_ERROR);
+    /**
+     * Computes the distance between this node's position and the given
+     * position, rounded to the -2 power of 10.
+     *
+     * @param x The x coordinate of the other position.
+     * @param y The y coordinate of the other position.
+     * @return The distance in double precision between the two locations.
+     */
+    public double distanceFrom(int x, int y) {
+        double dist = Math.sqrt(Math.pow(x - this.x, 2)
+                + Math.pow(y - this.y, 2));
+        return (int)(100 * dist) / 100.0;
     }
 
     // Checks that title length is in bounds and not null.
     private void checkTitleValidity(String title) {
         checkStringValidity(title, MIN_TITLE_LEN, MAX_TITLE_LEN,
                 NULL_TITLE_ERROR, SHORT_TITLE_ERROR, LONG_TITLE_ERROR);
+    }
+
+    // Checks that information length is in bounds and not null.
+    private void checkInformationValidity(String information) {
+        checkStringValidity(information, MIN_TEXT_LEN, MAX_TEXT_LEN,
+                NULL_TEXT_ERROR, null, LONG_TEXT_ERROR);
     }
 
     // Checks that str length is greater than or equal to lb, less than or equal

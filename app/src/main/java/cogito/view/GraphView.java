@@ -3,6 +3,7 @@ package cogito.view;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JFrame;
+import javax.swing.BorderFactory;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +11,11 @@ import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Ellipse2D;
 import java.awt.FontMetrics;
 import cogito.util.Pair;
 import cogito.model.Graph;
@@ -33,11 +37,15 @@ public class GraphView extends JPanel implements Observer {
     // Preferred dimensions of this GraphView.
     private final int preferredWidth;
     private final int preferredHeight;
+    private boolean isSelectionCircleVisible;
 
     // The frame of the app.
     private JFrame appFrame;
 
-    // Error messages
+    // The radius of the selection circle.
+    private static final int SELECTION_CIRCLE_RADIUS = 10;
+
+    // Error messages.
     private static final String NULL_OBJECT_ERROR = "Object can not be null";
     private static final String NOT_A_GRAPH_ERROR =
         "Object must be an instance of Graph";
@@ -54,11 +62,13 @@ public class GraphView extends JPanel implements Observer {
         this.model = Objects.requireNonNull(model, "Graph can not be null");
         this.preferredWidth = width;
         this.preferredHeight = height;
+        this.isSelectionCircleVisible = false;
         this.appFrame = appFrame;
         this.nodeViews = new ArrayList<>();
         this.loadNodeViews();
         this.linkViews = new ArrayList<>();
         this.loadLinkViews();
+        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     @Override
@@ -97,6 +107,18 @@ public class GraphView extends JPanel implements Observer {
         Graphics2D g2d = (Graphics2D)g;
 
         for (NodeView nv: this.nodeViews) {
+            if (this.isSelectionCircleVisible) {
+                int upperLeftX = nv.getModel().getX() - SELECTION_CIRCLE_RADIUS;
+                int upperLeftY = nv.getModel().getY() - SELECTION_CIRCLE_RADIUS;
+                int diameter = SELECTION_CIRCLE_RADIUS * 2;
+                Shape selectionCircle = new Ellipse2D.Double(
+                  upperLeftX,
+                  upperLeftY,
+                  diameter,
+                  diameter
+                );
+                g2d.draw(selectionCircle);
+            }
             String title = nv.getModel().getTitle();
             nv.setGraphics2D(g2d);
             nv.computeTitleDimensions();
@@ -135,5 +157,36 @@ public class GraphView extends JPanel implements Observer {
                 this.linkViews.add(new Pair<>(src, dst));
             }
         }
+    }
+
+    /**
+     * Returns the node at given location.
+     *
+     * The location is a point inside the circle around the center of the title.
+     * If there are multiple candidates, the first one encountered in the
+     * traversal of the nodes of the model is returned.
+     *
+     * @param x The x coordinate of the click.
+     * @param y The y coordinate of the click.
+     * @return The Node clicked on, or null if the click was in the void.
+     */
+    public Node getNodeAt(int x, int y) {
+        return this.model.getNodeAt(x, y, SELECTION_CIRCLE_RADIUS);
+    }
+
+    /**
+     * Shows selection circles around node views.
+     */
+    public void showSelectionCircles() {
+        this.isSelectionCircleVisible = true;
+        this.repaint();
+    }
+
+    /**
+     * Hides selection circles around node views.
+     */
+    public void hideSelectionCircles() {
+        this.isSelectionCircleVisible = false;
+        this.repaint();
     }
 }
