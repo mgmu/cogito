@@ -17,6 +17,9 @@ public class NodeView implements Observer {
     // The model of this view
     private Node model = null;
 
+    // The GraphView where this NodeView is displayed
+    private GraphView graphView;
+
     // The Graphics2D object used to compute the dimensions of the model's title
     private Graphics2D g2d = null;
 
@@ -28,8 +31,10 @@ public class NodeView implements Observer {
     private int titleBaseLineX = 0;
     private int titleBaseLineY = 0;
 
-    public NodeView(Node model) {
+    public NodeView(Node model, GraphView graphView) {
         this.model = Objects.requireNonNull(model, "Node can not be null");
+        this.graphView = Objects.requireNonNull(graphView,
+                "GraphView can not be null");
     }
 
     @Override
@@ -38,6 +43,7 @@ public class NodeView implements Observer {
         if (!(object instanceof Node))
             throw new IllegalArgumentException("Object is not a Node");
         this.model = (Node)object;
+        this.graphView.repaint();
     }
 
     /**

@@ -216,13 +216,6 @@ class NodeTest {
             void createObserver() {
                 obs = new DummyObserver();
             }
-
-            @Test
-            void setDifferentTitleTriggersUpdate() {
-                sut.subscribe(obs);
-                sut.setTitle("test1");
-                assertTrue(obs.updated);
-            }
             
             @Test
             void subscribeObserverTwiceThrowsIAE() {

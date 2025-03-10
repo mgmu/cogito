@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
@@ -31,7 +32,7 @@ public class DetailedNodeView extends JPanel implements Observer {
 
     private static final String NO_INFO = "No information";
 
-    private JLabel title;
+    private JTextField title;
     private JTextArea information;
     private JButton editButton;
     private JButton saveButton;
@@ -49,8 +50,9 @@ public class DetailedNodeView extends JPanel implements Observer {
 
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
-        this.title = new JLabel(NO_INFO);
-        this.information = new JTextArea(5, 30);
+        this.title = new JTextField(NO_INFO, 10);
+        this.title.setEditable(false);
+        this.information = new JTextArea();
         this.information.setEditable(false);
         this.information.setLineWrap(true);
 
@@ -59,6 +61,7 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.editButton.setEnabled(false);
         this.editButton.addActionListener(
           al -> {
+              this.title.setEditable(true);
               this.information.setEditable(true);
               this.saveButton.setEnabled(true);
           }
@@ -69,7 +72,9 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.saveButton.setEnabled(false);
         this.saveButton.addActionListener(
           al -> {
+              this.model.setTitle(this.title.getText());
               this.model.setInformation(this.information.getText());
+              this.title.setEditable(false);
               this.information.setEditable(false);
               this.saveButton.setEnabled(false);
               this.model.updateObservers();

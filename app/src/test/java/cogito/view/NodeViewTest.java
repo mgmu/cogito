@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import cogito.TestUtils;
+import cogito.model.Graph;
 import cogito.model.Node;
 
 class NodeViewTest {
@@ -15,7 +16,8 @@ class NodeViewTest {
 
         @BeforeEach
         void createNewNodeView() {
-            sut = new NodeView(new Node("title"));
+            sut = new NodeView(new Node("title"),
+                    new GraphView(new Graph(), 0, 0, null));
         }
 
         @Test
