@@ -90,7 +90,7 @@ public class GraphView extends JPanel implements Observer {
     // Loads the node views
     private void loadNodeViews() {
         for (Node node: this.model.getNodes()) {
-            NodeView nv = new NodeView(node);
+            NodeView nv = new NodeView(node, this);
             node.subscribe(nv);
             this.nodeViews.add(nv);
         }

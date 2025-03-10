@@ -128,7 +128,7 @@ public class Node implements Observable {
     }
 
     /**
-     * Sets a new title.
+     * Sets the new title.
      *
      * @param newTitle A string of length greater or equal to 1 and inferior or
      *        equal to 100, not null.
@@ -138,10 +138,7 @@ public class Node implements Observable {
      */
     public void setTitle(String newTitle) {
         checkTitleValidity(newTitle);
-        if (!this.title.equals(newTitle)) {
-            this.title = newTitle;
-            this.updateObservers();
-        }
+        this.title = newTitle;
     }
 
     /**
