@@ -33,6 +33,7 @@ public class GraphView extends JPanel implements Observer {
     private Graph model;
     private List<NodeView> nodeViews;
     private ArrayList<Pair<Point, Point>> linkViews;
+    private NodeView selectedNodeView;
 
     // Preferred dimensions of this GraphView.
     private final int preferredWidth;
@@ -69,6 +70,7 @@ public class GraphView extends JPanel implements Observer {
         this.linkViews = new ArrayList<>();
         this.loadLinkViews();
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        this.selectedNodeView = null;
     }
 
     @Override
@@ -117,7 +119,13 @@ public class GraphView extends JPanel implements Observer {
                   diameter,
                   diameter
                 );
-                g2d.draw(selectionCircle);
+                if (nv.equals(this.selectedNodeView)) {
+                    Color prevColor = g2d.getColor();
+                    g2d.setColor(Color.BLUE);
+                    g2d.draw(selectionCircle);
+                    g2d.setColor(prevColor);
+                } else
+                    g2d.draw(selectionCircle);
             }
             String title = nv.getModel().getTitle();
             nv.setGraphics2D(g2d);
@@ -187,6 +195,29 @@ public class GraphView extends JPanel implements Observer {
      */
     public void hideSelectionCircles() {
         this.isSelectionCircleVisible = false;
+        this.repaint();
+    }
+
+    /**
+     * Searches the node view that represents the given model, sets it as
+     * selected and repaints the graph.
+     *
+     * If no node view represents the given model, does nothing.
+     *
+     * @param model The node model of the selected node view.
+     */
+    public void showSelectedCircle(Node model) {
+        for (NodeView nv: this.nodeViews) {
+            if (nv.getModel().equals(model)) {
+                this.selectedNodeView = nv;
+                this.repaint();
+                return;
+            }
+        }
+    }
+
+    public void hideSelectedCircle() {
+        this.selectedNodeView = null;
         this.repaint();
     }
 }

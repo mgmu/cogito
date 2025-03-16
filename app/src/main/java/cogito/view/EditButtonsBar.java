@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import cogito.controller.GraphEditorMouseController;
 import cogito.controller.AddNodeController;
 import cogito.controller.SelectNodeController;
+import cogito.controller.LinkNodeController;
 import cogito.model.Graph;
 
 /**
@@ -29,6 +30,7 @@ public class EditButtonsBar extends JPanel {
     // The graph model represented in the graph editor.
     private Graph graphModel;
 
+    // The detailed node view
     private DetailedNodeView detailedNodeView;
 
     // Error messages
@@ -95,6 +97,24 @@ public class EditButtonsBar extends JPanel {
           }
         );
         this.add(selectNodeButton);
+
+        // Link node button
+        JButton linkNodeButton = new JButton("Link node");
+        linkNodeButton.addActionListener(
+          ae -> {
+              if (this.currentController != null) {
+                  if (this.currentController instanceof LinkNodeController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new LinkNodeController(
+                this.graphView,
+                this.graphModel
+              );
+              this.currentController.enable();
+          }
+        );
+        this.add(linkNodeButton);
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
