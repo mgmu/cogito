@@ -18,14 +18,17 @@ import cogito.view.Observer;
  */
 public class Graph implements Observable {
 
-    // Adjacency list of nodes
+    // Adjacency list of nodes.
     private final Map<Node, ArrayList<Node>> adj;
 
-    // The universally unique identifier of this Graph
+    // The universally unique identifier of this Graph.
     private final UUID identifier;
 
-    // The observers subscribed to the updates of this Graph
+    // The observers subscribed to the updates of this Graph.
     private final List<Observer> observers;
+
+    // The name of this Graph.
+    private String name;
 
     // Error messages
     private static final String NULL_NODE_ERROR = "Node must not be null";
@@ -42,14 +45,40 @@ public class Graph implements Observable {
         "Observer not subscribed";
     private static final String NEGATIVE_RADIUS_ERROR =
         "Radius must be greater than or equal to 0";
+    private static final String NULL_NAME_ERROR = "Name must be not null";
+    private static final String EMPTY_NAME_ERROR = "Name must not be empty";
+    private static final String NAME_LENGTH_ERROR =
+        "Name length must be less or equal to 100";
 
     /**
      * Creates a new empty graph.
+     *
+     * The name of the graph is the string representation of its UUID.
      */
     public Graph() {
         this.adj = new HashMap<Node, ArrayList<Node>>();
         this.identifier = UUID.randomUUID();
         this.observers = new ArrayList<>();
+        this.name = null;
+    }
+
+    /**
+     * Creates a new named graph.
+     *
+     * @param name The name of the graph, must not be empty, not null and of at
+     *        most 100 characters long.
+     * @throws NullPointerException if name is null.
+     * @throws IllegalArgumentException if name is empty or is longer than 100
+     *         characters.
+     */
+    public Graph(String name) {
+        this();
+        Objects.requireNonNull(name, NULL_NAME_ERROR);
+        if (name.isEmpty())
+            throw new IllegalArgumentException(EMPTY_NAME_ERROR);
+        if (name.length() > 100)
+            throw new IllegalArgumentException(NAME_LENGTH_ERROR);
+        this.name = name;
     }
 
     /**
@@ -229,5 +258,17 @@ public class Graph implements Observable {
                 return node;
         }
         return null;
+    }
+
+    /**
+     * Returns the name of this graph.
+     *
+     * If this graph was created without a name and the setName method was not
+     * called with a valid name, the name returned is the Uuid of this graph.
+     *
+     * @return The name of this graph, or its Uuid as a string.
+     */
+    public String getName() {
+        return (this.name == null) ? this.getUuid().toString() : this.name;
     }
 }

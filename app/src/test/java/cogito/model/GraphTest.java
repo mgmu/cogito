@@ -194,6 +194,40 @@ class GraphTest {
         assertNull(sut.getNodeAt(0, 0, 0));
     }
 
+    @Test
+    void getNameOfUnamedGraphReturnsUuid() {
+        assertEquals(sut.getUuid().toString(), sut.getName());
+    }
+
+    @Test
+    void newGraphWithNullNameThrowsNPE() {
+        TestUtils.assertThrowsNPEWithMsg(
+          "Name must be not null",
+          () -> new Graph(null)
+        );
+    }
+
+    @Test
+    void newGraphWithEmpyNameThrowsIAE() {
+        TestUtils.assertThrowsIAEWithMsg(
+          "Name must not be empty",
+          () -> new Graph("")
+        );
+    }
+
+    @Test
+    void newGraphWithNameLongerThan100CharsThrowsIAE() {
+        TestUtils.assertThrowsIAEWithMsg(
+          "Name length must be less or equal to 100",
+          () -> {
+              String name = "";
+              for (int i = 0; i <= 100; i++)
+                  name += "a";
+              new Graph(name);
+          }
+        );
+    }
+
     @Nested
     class AfterAddingAnObserver {
         DummyObserver obs;
@@ -321,6 +355,21 @@ class GraphTest {
         void getNodeAtVoidLocationReturnsNull() {
             Node other1 = new Node("title", 15, 15);
             assertNull(sut.getNodeAt(50, 50, 1));
+        }
+    }
+
+    @Nested
+    class NamedGraph {
+        Graph sut;
+
+        @BeforeEach
+        void createNamedGraph() {
+            sut = new Graph("test");
+        }
+
+        @Test
+        void getNameReturnsTest() {
+            assertEquals("test", sut.getName());
         }
     }
 }
