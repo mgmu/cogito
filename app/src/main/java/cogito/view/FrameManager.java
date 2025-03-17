@@ -21,19 +21,12 @@ public class FrameManager {
     private static final String NULL_SCREEN_ERROR = "Screen must not be null";
 
     /**
-     * Creates a new FrameManager with an initial screen.
-     *
-     * @param initialScreen The screen to be initially displayed when the frame
-     *        becomes visible, not null.
-     * @throws NullPointerException if initialScreen is null.
+     * Creates a new FrameManager without a screen.
      */
-    public FrameManager(Screen initialScreen) {
-        Objects.requireNonNull(initialScreen, NULL_SCREEN_ERROR);
+    public FrameManager() {
         this.frame = new JFrame("Cogito");
+        this.currentScreen = null;
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.currentScreen = initialScreen;
-        this.frame.getContentPane().add(this.currentScreen);
-        initialScreen.setFrameManager(this);
     }
 
     /**
@@ -55,7 +48,8 @@ public class FrameManager {
      */
     public void setCurrentScreen(Screen screen) {
         Objects.requireNonNull(screen, NULL_SCREEN_ERROR);
-        this.frame.getContentPane().remove(this.currentScreen);
+        if (this.currentScreen != null)
+            this.frame.getContentPane().remove(this.currentScreen);
         this.currentScreen = screen;
         this.frame.getContentPane().add(this.currentScreen);
         this.frame.pack();

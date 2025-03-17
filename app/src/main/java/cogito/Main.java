@@ -14,8 +14,9 @@ import cogito.util.DataManager;
 public class Main {
 
     private static void createAndShowGui() {
-        MainScreen mainScreen = new MainScreen(null);
-        FrameManager frameManager = new FrameManager(mainScreen);
+        FrameManager frameManager = new FrameManager();
+        MainScreen mainScreen = new MainScreen(frameManager);
+        frameManager.setCurrentScreen(mainScreen);
         frameManager.showGui();
     }
 

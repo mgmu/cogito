@@ -1,6 +1,8 @@
 package cogito.view;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -33,9 +35,29 @@ public class MainScreen extends Screen {
         JButton newButton = createNamedButton(
           "New",
           KeyEvent.VK_N,
-          ae -> this.frameManager.setCurrentScreen(
-            new GraphEditor(this.frameManager, new Graph())
-          )
+          ae -> {
+              JFrame appFrame = frameManager.getAppFrame();
+              TextInputDialog dialog = new TextInputDialog(
+                appFrame,
+                "Graph name:",
+                ""
+              );
+              if (dialog.isConfirmed()) {
+                  try {
+                      Graph model = new Graph(dialog.getInput());
+                      this.frameManager.setCurrentScreen(
+                        new GraphEditor(this.frameManager, model)
+                      );
+                  } catch (IllegalArgumentException iae) {
+                      JOptionPane.showMessageDialog(
+                        appFrame,
+                        iae.getMessage(),
+                        "Graph could not be created",
+                        JOptionPane.ERROR_MESSAGE
+                      );                
+                  }
+              }
+          }
         );
 
         // Loads an existing project
