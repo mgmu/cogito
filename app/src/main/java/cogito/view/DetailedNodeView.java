@@ -16,6 +16,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import cogito.model.Node;
 
 /**
@@ -32,37 +34,72 @@ public class DetailedNodeView extends JPanel implements Observer {
 
     private static final String NO_INFO = "No information";
 
-    private JTextField title;
-    private JTextArea information;
+    private JTextField titleField;
+    private JTextArea infoArea;
     private JButton editButton;
     private JButton saveButton;
+
+    private JFrame appFrame;
     
     /**
      * Creates a new detailed view of a node with the specified dimensions.
      *
      * @param width The preferred width of this DetailedNodeView.
      * @param height The preferred height of this DetailedNodeView.
+     * @param appFrame The application frame.
      */
-    public DetailedNodeView(int width, int height) {
+    public DetailedNodeView(int width, int height, JFrame appFrame) {
         this.model = null;
         this.preferredWidth = width;
         this.preferredHeight = height;
+        this.appFrame = appFrame;
 
-        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
 
-        this.title = new JTextField(NO_INFO, 10);
-        this.title.setEditable(false);
-        this.information = new JTextArea();
-        this.information.setEditable(false);
-        this.information.setLineWrap(true);
+        // Title label
+        JLabel titleLabel = new JLabel("Title:");
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        this.add(titleLabel, constraints);
+
+        // Title textfield
+        this.titleField = new JTextField(NO_INFO);
+        this.titleField.setEditable(false);
+        constraints.weightx = 1.0;
+        constraints.gridwidth = 3;
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        this.add(this.titleField, constraints);
+
+        // Information label
+        JLabel infoLabel = new JLabel("Information:");
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        this.add(infoLabel, constraints);
+
+        // Information area
+        this.infoArea = new JTextArea();
+        this.infoArea.setEditable(false);
+        this.infoArea.setLineWrap(true);
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        constraints.gridwidth = 3;
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        this.add(this.infoArea, constraints);
+
 
         // Edit button
         this.editButton = new JButton("Edit");
         this.editButton.setEnabled(false);
         this.editButton.addActionListener(
           al -> {
-              this.title.setEditable(true);
-              this.information.setEditable(true);
+              this.titleField.setEditable(true);
+              this.infoArea.setEditable(true);
               this.saveButton.setEnabled(true);
           }
         );
@@ -72,34 +109,45 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.saveButton.setEnabled(false);
         this.saveButton.addActionListener(
           al -> {
-              this.model.setTitle(this.title.getText());
-              this.model.setInformation(this.information.getText());
-              this.title.setEditable(false);
-              this.information.setEditable(false);
+              try {
+                  this.model.setTitle(this.titleField.getText());
+              } catch (Exception e) {
+                  JOptionPane.showMessageDialog(
+                  this.appFrame,
+                  e.getMessage(),
+                  "Node title could not be updated",
+                  JOptionPane.ERROR_MESSAGE
+                );
+              }
+              try {
+                  this.model.setInformation(this.infoArea.getText());
+              } catch (Exception e) {
+                  JOptionPane.showMessageDialog(
+                  this.appFrame,
+                  e.getMessage(),
+                  "Node information could not be updated",
+                  JOptionPane.ERROR_MESSAGE
+                );
+              }
+              this.titleField.setEditable(false);
+              this.infoArea.setEditable(false);
               this.saveButton.setEnabled(false);
               this.model.updateObservers();
           }
         );
 
-        // Title panel
-        JPanel titlePane = new JPanel();
-        titlePane.setLayout(new BoxLayout(titlePane, BoxLayout.LINE_AXIS));
-        titlePane.add(new JLabel("Title:"));
-        titlePane.add(this.title);
-
-        // Information panel
-        JPanel infoPane = new JPanel();
-        infoPane.setLayout(new BoxLayout(infoPane, BoxLayout.PAGE_AXIS));
-        infoPane.add(new JLabel("Information:"));
-        JScrollPane scrollPane = new JScrollPane(this.information);
-        infoPane.add(scrollPane);
-        infoPane.add(editButton);
-        infoPane.add(saveButton);
-
-        // Add all components
-        this.add(titlePane);
-        this.add(infoPane);
-        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        // Buttons pane
+        JPanel buttonsPane = new JPanel();
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 0.0;
+        constraints.weighty = 0.0;
+        constraints.gridwidth = 1;
+        constraints.gridx = 2;
+        constraints.gridy = 4;
+        constraints.anchor = GridBagConstraints.LAST_LINE_END;
+        buttonsPane.add(this.editButton);
+        buttonsPane.add(this.saveButton);
+        this.add(buttonsPane, constraints);
     }
 
     @Override
@@ -118,8 +166,8 @@ public class DetailedNodeView extends JPanel implements Observer {
         if (this.model != null)
             this.model.unsubscribe(this);
         this.model = model;
-        this.title.setText(model.getTitle());
-        this.information.setText(model.getInformation());
+        this.titleField.setText(model.getTitle());
+        this.infoArea.setText(model.getInformation());
         this.model.subscribe(this);
         this.editButton.setEnabled(true);
         this.repaint();
@@ -128,8 +176,8 @@ public class DetailedNodeView extends JPanel implements Observer {
     @Override
     public void updateWithData(Object object) {
         Node node = (Node)object;
-        this.title.setText(node.getTitle());
-        this.information.setText(node.getInformation());
+        this.titleField.setText(node.getTitle());
+        this.infoArea.setText(node.getInformation());
         this.repaint();
     }
 }

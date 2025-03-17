@@ -29,11 +29,16 @@ public class GraphEditor extends Screen {
         super(frameManager);
         Objects.requireNonNull(model, NULL_GRAPH_ERROR);
         this.model = model;
-        this.graphView = new GraphView(this.model, PREFERRED_WIDTH - 400,
-                PREFERRED_HEIGHT - 50, frameManager.getAppFrame());
+        this.graphView = new GraphView(
+          this.model,
+          PREFERRED_WIDTH - 400,
+          PREFERRED_HEIGHT - 50,
+          frameManager.getAppFrame()
+        );
         this.detailedNodeView = new DetailedNodeView(
           400,
-          PREFERRED_HEIGHT - 50
+          PREFERRED_HEIGHT - 50,
+          frameManager.getAppFrame()
         );
         this.model.subscribe(this.graphView);
 
