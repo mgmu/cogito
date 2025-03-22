@@ -6,8 +6,10 @@ import javax.swing.JOptionPane;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import cogito.model.Graph;
 import cogito.model.Node;
+import cogito.util.DataManager;
 
 /**
  * The first screen of the GUI.
@@ -48,13 +50,21 @@ public class MainScreen extends Screen {
                       this.frameManager.setCurrentScreen(
                         new GraphEditor(this.frameManager, model)
                       );
+                      DataManager.saveGraph(model);
                   } catch (IllegalArgumentException iae) {
                       JOptionPane.showMessageDialog(
                         appFrame,
                         iae.getMessage(),
                         "Graph could not be created",
                         JOptionPane.ERROR_MESSAGE
-                      );                
+                      );
+                  } catch (IOException ioe) {
+                      JOptionPane.showMessageDialog(
+                        appFrame,
+                        ioe.getMessage(),
+                        "Graph could not be saved",
+                        JOptionPane.ERROR_MESSAGE
+                      );
                   }
               }
           }

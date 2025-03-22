@@ -3,14 +3,17 @@ package cogito.view;
 import java.util.Objects;
 import java.awt.Dimension;
 import java.awt.Color;
+import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import cogito.controller.GraphEditorMouseController;
 import cogito.controller.AddNodeController;
 import cogito.controller.SelectNodeController;
 import cogito.controller.LinkNodeController;
 import cogito.model.Graph;
+import cogito.util.DataManager;
 
 /**
  * Contains the buttons that edit the graph.
@@ -115,6 +118,30 @@ public class EditButtonsBar extends JPanel {
           }
         );
         this.add(linkNodeButton);
+
+        // Save graph button
+        JButton saveGraphButton = new JButton("Save graph");
+        saveGraphButton.addActionListener(
+          ae -> {
+              try {
+                  DataManager.saveGraph(this.graphModel);
+                  JOptionPane.showMessageDialog(
+                    this.graphView.getAppFrame(),
+                    "Graph succesfully saved!",
+                    "Succes",
+                    JOptionPane.INFORMATION_MESSAGE
+                  );
+              } catch (IOException ioe) {
+                  JOptionPane.showMessageDialog(
+                    this.graphView.getAppFrame(),
+                    "I/O error: " + ioe.getMessage(),
+                    "Graph could not be saved",
+                    JOptionPane.ERROR_MESSAGE
+                  );
+              }
+          }
+        );
+        this.add(saveGraphButton);
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 

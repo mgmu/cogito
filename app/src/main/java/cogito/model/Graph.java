@@ -271,4 +271,20 @@ public class Graph implements Observable {
     public String getName() {
         return (this.name == null) ? this.getUuid().toString() : this.name;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder()
+            .append(this.getName())
+            .append("\n");
+        for (Node node: this.getNodes()) {
+            builder.append(node.getUuid());
+            for (Node neighbor: this.getNodesLinkedTo(node)) {
+                builder.append(",");
+                builder.append(neighbor.getUuid());
+            }
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
 }
