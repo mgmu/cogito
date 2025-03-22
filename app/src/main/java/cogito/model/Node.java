@@ -267,4 +267,13 @@ public class Node implements Observable {
         if (length > ub)
             throw new IllegalArgumentException(errorMsgWhenTooLong);
     }
+
+    /**
+     * Returns the position of this Node as a String.
+     *
+     * @return A string of this format "X,Y".
+     */
+    public String getPositionAsString() {
+        return this.x + "," + this.y;
+    }
 }
