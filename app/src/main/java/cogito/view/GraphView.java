@@ -17,6 +17,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.FontMetrics;
+import java.awt.Font;
+import java.awt.BasicStroke;
 import cogito.util.Pair;
 import cogito.model.Graph;
 import cogito.model.Node;
@@ -107,11 +109,17 @@ public class GraphView extends JPanel implements Observer {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
+        Font currentFont = g2d.getFont();
+        Font increasedFont = currentFont.deriveFont(
+          currentFont.getSize() * 1.5f
+        );
+        g2d.setFont(increasedFont);
 
         for (NodeView nv: this.nodeViews) {
             if (this.isSelectionCircleVisible) {
                 int upperLeftX = nv.getModel().getX() - SELECTION_CIRCLE_RADIUS;
-                int upperLeftY = nv.getModel().getY() - SELECTION_CIRCLE_RADIUS;
+                int upperLeftY =
+                    nv.getModel().getY() - SELECTION_CIRCLE_RADIUS + 2;
                 int diameter = SELECTION_CIRCLE_RADIUS * 2;
                 Shape selectionCircle = new Ellipse2D.Double(
                   upperLeftX,
