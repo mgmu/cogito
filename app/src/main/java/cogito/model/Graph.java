@@ -125,7 +125,7 @@ public class Graph implements Observable {
     }
 
     /**
-     * Remove the given node from this Graph.
+     * Removes the given node from this Graph.
      *
      * @param node The node to remove, not null and not absent from this graph.
      * @throws NullPointerException if node is null.
@@ -135,8 +135,11 @@ public class Graph implements Observable {
         Objects.requireNonNull(node, NULL_NODE_ERROR);
         if (!this.contains(node))
             throw new IllegalArgumentException(ABSENT_NODE_ERROR);
+        for (Node other: this.getNodes()) {
+            List<Node> neighbors = this.adj.get(other);
+            neighbors.remove(node);
+        }
         this.adj.remove(node);
-        this.updateObservers();
     }
 
     /**

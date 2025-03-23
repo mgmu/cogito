@@ -328,14 +328,6 @@ class GraphTest {
         }
 
         @Test
-        void observerIsUpdatedAfterRemovingANode() {
-            DummyObserver obs = new DummyObserver();
-            sut.subscribe(obs);
-            sut.remove(node);
-            assertTrue(obs.updated);
-        }
-
-        @Test
         void observerIsUpdatedAfterLinkingTwoNodes() {
             Node other = new Node("test");
             sut.add(other);

@@ -12,6 +12,7 @@ import cogito.controller.GraphEditorMouseController;
 import cogito.controller.AddNodeController;
 import cogito.controller.SelectNodeController;
 import cogito.controller.LinkNodeController;
+import cogito.controller.RemoveNodeController;
 import cogito.model.Graph;
 import cogito.util.DataManager;
 
@@ -123,6 +124,24 @@ public class EditButtonsBar extends JPanel {
           }
         );
         this.add(linkNodeButton);
+
+        // Remove node button
+        JButton removeNodeButton = new JButton("Remove node");
+        removeNodeButton.addActionListener(
+          ae -> {
+              if (this.currentController != null) {
+                  if (this.currentController instanceof RemoveNodeController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new RemoveNodeController(
+                this.graphView,
+                this.graphModel
+              );
+              this.currentController.enable();
+          }
+        );
+        this.add(removeNodeButton);
 
         // Save graph button
         JButton saveGraphButton = new JButton("Save graph");
