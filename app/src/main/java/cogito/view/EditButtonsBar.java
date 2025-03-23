@@ -25,7 +25,7 @@ public class EditButtonsBar extends JPanel {
     private final int preferredHeight;
 
     // The mouse controller of the graph editor.
-    private GraphEditorMouseController currentController = null;
+    private GraphEditorMouseController currentController;
 
     // The view of the edited graph.
     private GraphView graphView;
@@ -63,6 +63,11 @@ public class EditButtonsBar extends JPanel {
         this.graphModel = Objects.requireNonNull(graphModel, NULL_GRAPH_ERROR);
         this.preferredWidth = width;
         this.preferredHeight = height;
+        this.currentController = new AddNodeController(
+          this.graphView,
+          this.graphModel
+        );
+        this.currentController.enable();
 
         // Add node button
         JButton addNodeButton = new JButton("Add node");
