@@ -117,6 +117,15 @@ public class Node implements Observable {
         this.information = information;
     }
 
+    public Node(String title, String information, int x, int y, UUID id) {
+        this.title = title;
+        this.information = information;
+        this.x = x;
+        this.y = y;
+        this.identifier = id;
+        this.observers = new ArrayList<>();
+    }
+
     /**
      * Returns the title of this Node.
      *

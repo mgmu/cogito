@@ -3,11 +3,19 @@ package cogito.view;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JList;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.List;
 import cogito.model.Graph;
+import cogito.model.GraphInfo;
 import cogito.model.Node;
 import cogito.util.DataManager;
 
@@ -17,7 +25,7 @@ import cogito.util.DataManager;
  * This Screen prompts the user to choose between creating a new graph or
  * loading an existing one.
  */
-public class MainScreen extends Screen {
+public class MainScreen extends Screen implements ListSelectionListener {
 
     // Preferred width of the panel
     private static final int PREFERRED_WIDTH = 400;
@@ -25,6 +33,18 @@ public class MainScreen extends Screen {
     // Preferred height of the panel
     private static final int PREFERRED_HEIGHT = 200;
     
+    // List of graph names.
+    private JList<Object> jNames;
+
+    // New graph button.
+    private JButton newButton;
+
+    // Open graph button.
+    private JButton openButton;
+
+    // List of graph informations.
+    private List<GraphInfo> graphInfos;
+
     /**
      * Creates a new main screen with the given frame manager.
      *
@@ -34,10 +54,10 @@ public class MainScreen extends Screen {
         super(frameManager);
 
         // Creates a new project
-        JButton newButton = createNamedButton(
+        newButton = createNamedButton(
           "New",
           KeyEvent.VK_N,
-          ae -> {
+          al -> {
               JFrame appFrame = frameManager.getAppFrame();
               TextInputDialog dialog = new TextInputDialog(
                 appFrame,
@@ -69,18 +89,70 @@ public class MainScreen extends Screen {
               }
           }
         );
+        this.add(newButton);
 
-        // Loads an existing project
-        JButton loadButton = createNamedButton(
-          "Load",
-          KeyEvent.VK_L,
-          ae -> {
-              throw new UnsupportedOperationException("todo");
+        this.graphInfos = null;
+        try {
+            graphInfos = DataManager.getSavedGraphInfos();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+              frameManager.getAppFrame(),
+              "Could not retrieve saved graphs.",
+              "Error",
+              JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+        this.openButton = new JButton("Open");
+        this.openButton.setEnabled(false);
+        this.openButton.addActionListener(
+          al -> {
+              if (this.graphInfos == null)
+                  return;
+              GraphInfo selectedGraphInfo =
+                  (GraphInfo)this.jNames.getSelectedValue();
+              if (selectedGraphInfo == null) {
+                  JOptionPane.showMessageDialog(
+                    frameManager.getAppFrame(),
+                    "No graph selected.",
+                    "Could not open graph",
+                    JOptionPane.ERROR_MESSAGE
+                  );
+              } else {
+                  try {
+                      Graph model = DataManager.loadGraph(
+                        selectedGraphInfo.identifier()
+                      );
+                      this.frameManager.setCurrentScreen(
+                        new GraphEditor(this.frameManager, model)
+                      );
+                  } catch (IOException ioe) {
+                      JOptionPane.showMessageDialog(
+                        frameManager.getAppFrame(),
+                        "Could not open graph.",
+                        "Could not open graph",
+                        JOptionPane.ERROR_MESSAGE
+                      );
+                  }
+              }
           }
         );
+        this.add(openButton);
 
-        this.add(newButton);
-        this.add(loadButton);
+        if (graphInfos == null) {
+            JLabel noGraphLabel = new JLabel("No graph saved yet.");
+            this.add(noGraphLabel);
+        } else {
+            jNames = new JList<Object>(graphInfos.toArray());
+            jNames.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            jNames.setLayoutOrientation(JList.VERTICAL);
+            jNames.setVisibleRowCount(-1);
+            jNames.addListSelectionListener(this);
+            JScrollPane scrollPane = new JScrollPane(jNames);
+            // continue here
+            
+            this.add(jNames);
+        }
     }
 
     // Returns a named button, sets its mnemonic and action listener
@@ -95,5 +167,17 @@ public class MainScreen extends Screen {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT);
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (jNames == null)
+            return;
+        if (e.getValueIsAdjusting() == false) {
+            if (jNames.getSelectedIndex() == -1)
+                openButton.setEnabled(false);
+            else
+                openButton.setEnabled(true);
+        }
     }
 }
