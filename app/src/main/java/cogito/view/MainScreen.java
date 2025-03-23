@@ -97,33 +97,37 @@ public class MainScreen extends Screen implements ListSelectionListener {
           KeyEvent.VK_N,
           al -> {
               JFrame appFrame = frameManager.getAppFrame();
-              TextInputDialog dialog = new TextInputDialog(
+              String input = (String)JOptionPane.showInputDialog(
                 appFrame,
-                "Graph name:",
+                "Enter new graph name:",
+                "New graph",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
                 ""
               );
-              if (dialog.isConfirmed()) {
-                  try {
-                      Graph model = new Graph(dialog.getInput());
-                      this.frameManager.setCurrentScreen(
-                        new GraphEditor(this.frameManager, model)
-                      );
-                      DataManager.saveGraph(model);
-                  } catch (IllegalArgumentException iae) {
-                      JOptionPane.showMessageDialog(
-                        appFrame,
-                        iae.getMessage(),
-                        "Graph could not be created",
-                        JOptionPane.ERROR_MESSAGE
-                      );
-                  } catch (IOException ioe) {
-                      JOptionPane.showMessageDialog(
-                        appFrame,
-                        ioe.getMessage(),
-                        "Graph could not be saved",
-                        JOptionPane.ERROR_MESSAGE
-                      );
-                  }
+              if (input == null) // click on cancel
+                  return;
+              try {
+                  Graph model = new Graph(input);
+                  this.frameManager.setCurrentScreen(
+                    new GraphEditor(this.frameManager, model)
+                  );
+                  DataManager.saveGraph(model);
+              } catch (IllegalArgumentException iae) {
+                  JOptionPane.showMessageDialog(
+                    appFrame,
+                    iae.getMessage(),
+                    "Invalid input",
+                    JOptionPane.ERROR_MESSAGE
+                  );
+              } catch (IOException ioe) {
+                  JOptionPane.showMessageDialog(
+                    appFrame,
+                    ioe.getMessage(),
+                    "Graph could not be saved",
+                    JOptionPane.ERROR_MESSAGE
+                  );
               }
           }
         );

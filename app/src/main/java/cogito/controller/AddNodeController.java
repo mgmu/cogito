@@ -5,7 +5,6 @@ import javax.swing.JOptionPane;
 import cogito.model.Graph;
 import cogito.model.Node;
 import cogito.view.GraphView;
-import cogito.view.TextInputDialog;
 
 /**
  * This controller creates a node at the location of the mouse click to the
@@ -28,24 +27,28 @@ public class AddNodeController extends GraphEditorMouseController {
     public void mouseClicked(MouseEvent e) {
         int centerX = e.getX();
         int centerY = e.getY();
-        TextInputDialog dialog = new TextInputDialog(
+        String input = (String)JOptionPane.showInputDialog(
           this.view.getAppFrame(),
-          "Title:",
+          "Enter new node name:",
+          "New node",
+          JOptionPane.PLAIN_MESSAGE,
+          null,
+          null,
           ""
         );
-        if (dialog.isConfirmed()) {
-            try {
-                this.model.add(
-                  new Node(dialog.getInput(), centerX, centerY)
-                );
-            } catch (IllegalArgumentException iae) {
-                JOptionPane.showMessageDialog(
-                  this.view.getAppFrame(),
-                  iae.getMessage(),
-                  "Node could not be added",
-                  JOptionPane.ERROR_MESSAGE
-                );
-            }
+        if (input == null)
+            return;
+        try {
+            this.model.add(
+              new Node(input, centerX, centerY)
+            );
+        } catch (IllegalArgumentException iae) {
+            JOptionPane.showMessageDialog(
+              this.view.getAppFrame(),
+              iae.getMessage(),
+              "Node could not be added",
+              JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 }
