@@ -37,6 +37,7 @@ public class FrameManager {
      */
     public void showGui() {
         this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
         this.frame.setVisible(true);
     }
 

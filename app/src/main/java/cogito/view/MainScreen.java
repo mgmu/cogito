@@ -1,7 +1,12 @@
 package cogito.view;
 
+import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
+import java.awt.BorderLayout;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JOptionPane;
 import javax.swing.JList;
 import javax.swing.JLabel;
@@ -34,7 +39,7 @@ public class MainScreen extends Screen implements ListSelectionListener {
     private static final int PREFERRED_HEIGHT = 200;
     
     // List of graph names.
-    private JList<Object> jNames;
+    private JList<Object> graphNames;
 
     // New graph button.
     private JButton newButton;
@@ -42,7 +47,7 @@ public class MainScreen extends Screen implements ListSelectionListener {
     // Open graph button.
     private JButton openButton;
 
-    // List of graph informations.
+    // Name and identifier of saved graphs.
     private List<GraphInfo> graphInfos;
 
     /**
@@ -53,8 +58,41 @@ public class MainScreen extends Screen implements ListSelectionListener {
     public MainScreen(FrameManager frameManager) {
         super(frameManager);
 
+        this.setLayout(new BorderLayout());
+
+        JPanel listPane = new JPanel();
+        listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
+        listPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel labelPane = new JPanel();
+        labelPane.setLayout(new BoxLayout(labelPane, BoxLayout.LINE_AXIS));
+        labelPane.add(new JLabel("Your graphs:"));
+        labelPane.add(Box.createHorizontalGlue());
+        listPane.add(labelPane);
+
+        try {
+            this.graphInfos = DataManager.getSavedGraphInfos();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+              frameManager.getAppFrame(),
+              "Could not retrieve saved graphs.",
+              "Error",
+              JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+        this.graphNames = new JList<Object>(this.graphInfos.toArray());
+        this.graphNames.setSelectionMode(
+          ListSelectionModel.SINGLE_SELECTION
+        );
+        this.graphNames.setLayoutOrientation(JList.VERTICAL);
+        this.graphNames.setVisibleRowCount(-1);
+        this.graphNames.addListSelectionListener(this);
+        JScrollPane scrollPane = new JScrollPane(this.graphNames);
+        listPane.add(scrollPane);
+
         // Creates a new project
-        newButton = createNamedButton(
+        this.newButton = createNamedButton(
           "New",
           KeyEvent.VK_N,
           al -> {
@@ -89,28 +127,15 @@ public class MainScreen extends Screen implements ListSelectionListener {
               }
           }
         );
-        this.add(newButton);
 
-        this.graphInfos = null;
-        try {
-            graphInfos = DataManager.getSavedGraphInfos();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-              frameManager.getAppFrame(),
-              "Could not retrieve saved graphs.",
-              "Error",
-              JOptionPane.ERROR_MESSAGE
-            );
-        }
-
-        this.openButton = new JButton("Open");
-        this.openButton.setEnabled(false);
-        this.openButton.addActionListener(
+        this.openButton = createNamedButton(
+          "Open",
+          KeyEvent.VK_O,
           al -> {
               if (this.graphInfos == null)
                   return;
               GraphInfo selectedGraphInfo =
-                  (GraphInfo)this.jNames.getSelectedValue();
+                  (GraphInfo)this.graphNames.getSelectedValue();
               if (selectedGraphInfo == null) {
                   JOptionPane.showMessageDialog(
                     frameManager.getAppFrame(),
@@ -137,26 +162,22 @@ public class MainScreen extends Screen implements ListSelectionListener {
               }
           }
         );
-        this.add(openButton);
+        this.openButton.setEnabled(false);
 
-        if (graphInfos == null) {
-            JLabel noGraphLabel = new JLabel("No graph saved yet.");
-            this.add(noGraphLabel);
-        } else {
-            jNames = new JList<Object>(graphInfos.toArray());
-            jNames.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            jNames.setLayoutOrientation(JList.VERTICAL);
-            jNames.setVisibleRowCount(-1);
-            jNames.addListSelectionListener(this);
-            JScrollPane scrollPane = new JScrollPane(jNames);
-            // continue here
-            
-            this.add(jNames);
-        }
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+        buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        buttonPane.add(Box.createHorizontalGlue());
+        buttonPane.add(this.openButton);
+        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPane.add(this.newButton);
+
+        this.add(listPane, BorderLayout.CENTER);
+        this.add(buttonPane, BorderLayout.PAGE_END);
     }
 
     // Returns a named button, sets its mnemonic and action listener
-    private JButton createNamedButton(String name, int mnemonic,
+    private static JButton createNamedButton(String name, int mnemonic,
             ActionListener al) {
         JButton button = new JButton(name);
         button.setMnemonic(mnemonic);
@@ -171,10 +192,10 @@ public class MainScreen extends Screen implements ListSelectionListener {
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        if (jNames == null)
+        if (this.graphNames == null)
             return;
         if (e.getValueIsAdjusting() == false) {
-            if (jNames.getSelectedIndex() == -1)
+            if (this.graphNames.getSelectedIndex() == -1)
                 openButton.setEnabled(false);
             else
                 openButton.setEnabled(true);
