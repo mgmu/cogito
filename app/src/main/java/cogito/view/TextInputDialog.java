@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import java.awt.Dimension;
+import java.awt.BorderLayout;
 
 public class TextInputDialog extends JDialog {
 
@@ -22,7 +23,10 @@ public class TextInputDialog extends JDialog {
         this.isConfirmed = false;
         this.input = new JTextField(initialInput, 20); // 20 rows != 20 chars
 
-        JPanel panel = new JPanel();
+        JPanel pane = new JPanel();
+        pane.setLayout(new BorderLayout());
+
+        JPanel inputPane = new JPanel();
         JLabel jLabel = new JLabel(label);
         JButton confirmButton = new JButton("Confirm");
         confirmButton.addActionListener(
@@ -31,15 +35,18 @@ public class TextInputDialog extends JDialog {
               this.dispose();
           }
         );
-        panel.add(jLabel);
-        panel.add(this.input);
-        panel.add(confirmButton);
+        inputPane.add(jLabel);
+        inputPane.add(this.input);
 
-        this.getContentPane().add(panel);
+        pane.add(inputPane, BorderLayout.CENTER);
+        pane.add(confirmButton, BorderLayout.PAGE_END);
+
+        this.getContentPane().add(pane);
         
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
