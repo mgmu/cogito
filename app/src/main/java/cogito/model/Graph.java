@@ -81,6 +81,13 @@ public class Graph implements Observable {
         this.name = name;
     }
 
+    public Graph(String name, UUID identifier) {
+        this.name = name;
+        this.identifier = identifier;
+        this.adj = new HashMap<Node, ArrayList<Node>>();
+        this.observers = new ArrayList<>();
+    }
+
     /**
      * Returns the number of nodes in this Graph.
      *
@@ -286,5 +293,17 @@ public class Graph implements Observable {
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    public GraphInfo getGraphInfo() {
+        return new GraphInfo(this.name, this.identifier);
+    }
+
+    public Node getNode(String identifier) {
+        for (Node node: this.getNodes()) {
+            if (node.getUuid().toString().equals(identifier))
+                return node;
+        }
+        return null;
     }
 }

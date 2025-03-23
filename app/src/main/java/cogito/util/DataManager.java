@@ -6,13 +6,22 @@ import java.nio.file.Files;
 import java.nio.file.CopyOption;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.FileVisitResult;
+import java.nio.file.DirectoryStream;
+import java.nio.file.DirectoryIteratorException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.Charset;
 import java.io.BufferedWriter;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
 import cogito.model.Graph;
+import cogito.model.GraphInfo;
 import cogito.model.Node;
 
 /**
@@ -50,7 +59,6 @@ public class DataManager {
      * @param model The graph model to save.
      */
     public static void saveGraph(Graph model) throws IOException {
-        Charset charset = StandardCharsets.US_ASCII;
         String graphUuid = model.getUuid().toString();
         Path graphModelDir = GRAPHS_DIR.resolve(graphUuid);
         if (Files.exists(graphModelDir)) {
@@ -59,7 +67,11 @@ public class DataManager {
             copyFolder(graphModelDir, graphSaveDir);
             deleteFolder(graphModelDir);
             Files.createDirectory(graphModelDir);
-            boolean succ = writeGraphData(graphModelDir, charset, model);
+            boolean succ = writeGraphData(
+              graphModelDir,
+              StandardCharsets.US_ASCII,
+              model
+            );
             if (!succ) {
                 deleteFolder(graphModelDir);
                 copyFolder(graphSaveDir, graphModelDir);
@@ -67,7 +79,11 @@ public class DataManager {
             deleteFolder(graphSaveDir);
         } else {
             Files.createDirectory(graphModelDir);
-            writeGraphData(graphModelDir, charset, model);
+            writeGraphData(
+              graphModelDir,
+              StandardCharsets.US_ASCII,
+              model
+            );
         }
     }
 
@@ -93,7 +109,7 @@ public class DataManager {
             data = node.getInformation();
             if (!createAndWriteToFile(nodeDir, charset, "info", data))
                 return false;
-            data = node.getPositionAsString();
+            data = node.getPositionAsString() + "\n";
             if (!createAndWriteToFile(nodeDir, charset, "position", data))
                 return false;
         }
@@ -183,5 +199,152 @@ public class DataManager {
               }
           }
         );
+    }
+
+    /**
+     * Returns the list of saved graph informations.
+     *
+     * Searchs for graphs saved locally and returns their names and identifiers.
+     *
+     * @return A list of graph information objects.
+     */
+    public static List<GraphInfo> getSavedGraphInfos() throws Exception {
+        Charset charset = StandardCharsets.US_ASCII;
+        Exception thrown = null;
+        List<GraphInfo> graphInfos = new ArrayList<>();
+        try (
+          DirectoryStream<Path> stream = Files.newDirectoryStream(GRAPHS_DIR)
+        ) {
+            for (Path path: stream) {
+                File file = path.toFile();
+                if (file.isDirectory()) { // ignore other files
+                    Path grFile = path.resolve(file.getName() + ".gr");
+                    try (
+                      BufferedReader reader = Files.newBufferedReader(
+                        grFile,
+                        charset
+                      )
+                    ) {
+                        String name = reader.readLine();
+                        GraphInfo gi = new GraphInfo(
+                          name,
+                          UUID.fromString(file.getName())
+                        );
+                        graphInfos.add(gi);
+                    } catch (IOException ioe) {
+                        thrown = ioe;
+                        break;
+                    }
+                }
+            }
+        } catch (IOException | DirectoryIteratorException x) {
+            thrown = x;
+        }
+        if (thrown != null)
+            throw thrown;
+        return graphInfos;
+    }
+
+    public static Graph loadGraph(UUID identifier) throws IOException {
+        String id = identifier.toString();
+        String modelName = null;
+        Path modelDir = GRAPHS_DIR.resolve(id);
+        Path modelGrFile = modelDir.resolve(id + ".gr");
+        Map<String, List<String>> tmpAdj = new HashMap<>();
+
+        // read .gr file
+        BufferedReader reader = Files.newBufferedReader(
+          modelGrFile,
+          StandardCharsets.US_ASCII
+        );
+        modelName = reader.readLine();
+        // throw x if name is null
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            String[] content = line.split(",");
+            // check that content has at least size one
+            List<String> neighbors = new ArrayList<>();
+            if (content.length > 1) {
+                for (int i = 1; i < content.length; i++)
+                    neighbors.add(content[i]);
+            }
+            tmpAdj.put(content[0], neighbors);
+        }
+        reader.close();
+
+        // load nodes
+        Graph model = new Graph(modelName, identifier);
+        for (String nodeUuid: tmpAdj.keySet()) {
+            Node curr = model.getNode(nodeUuid);
+            if (curr == null) {
+                curr = loadNode(modelDir, nodeUuid);
+                model.add(curr);
+            }
+            for (String neighborUuid: tmpAdj.get(nodeUuid)) {
+                Node neighbor = model.getNode(neighborUuid);
+                if (neighbor == null)
+                    neighbor = loadNode(modelDir, neighborUuid);
+                model.add(neighbor);
+                model.link(curr, neighbor);
+            }
+        }
+        return model;
+    }
+
+    private static Node loadNode(
+      Path graphPath,
+      String identifier
+    ) throws IOException {
+        Path nodeDir = graphPath.resolve(identifier);
+        
+        // read title
+        Path nodeTitleFile = nodeDir.resolve("title");
+        String title = readAsciiFileContent(nodeTitleFile, 100);
+
+        // read information
+        Path nodeInfoFile = nodeDir.resolve("info");
+        String information = readAsciiFileContent(nodeInfoFile, 5000);
+            
+        // read position
+        Path nodePosFile = nodeDir.resolve("position");
+        int[] pos = readPositionFile(nodePosFile);
+
+        return new Node(
+          title,
+          information,
+          pos[0],
+          pos[1],
+          UUID.fromString(identifier)
+        );
+    }
+
+    private static String readAsciiFileContent(
+      Path path,
+      int len
+    ) throws IOException {
+        BufferedReader reader = Files.newBufferedReader(
+          path,
+          StandardCharsets.US_ASCII
+        );
+        char[] buf = new char[len];
+        reader.read(buf, 0, len);
+        reader.close();
+        String data = new String(buf).trim();
+        return data;
+    }
+
+    private static int[] readPositionFile(Path path) throws IOException {
+        BufferedReader reader = Files.newBufferedReader(
+          path,
+          StandardCharsets.US_ASCII
+        );
+        int[] pos = new int[2];
+        String line = reader.readLine();
+        if (line == null)
+            return null; // improve this
+        String[] split = line.split(",");
+        pos[0] = Integer.parseInt(split[0]);
+        pos[1] = Integer.parseInt(split[1]);
+        return pos;
     }
 }
