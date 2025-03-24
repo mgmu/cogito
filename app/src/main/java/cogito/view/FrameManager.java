@@ -54,6 +54,7 @@ public class FrameManager {
         this.currentScreen = screen;
         this.frame.getContentPane().add(this.currentScreen);
         this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
 
         // mysterious, ensure usefulness
         this.frame.revalidate();
