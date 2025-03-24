@@ -34,6 +34,7 @@ public class DataManager {
     private static final String GRAPHS_DIR_NAME = "graphs";
     private static final Path INSTAL_DIR = Paths.get(HOME_DIR, INSTAL_DIR_NAME);
     private static final Path GRAPHS_DIR = INSTAL_DIR.resolve(GRAPHS_DIR_NAME);
+    private static final Charset CHARSET = StandardCharsets.UTF_16;
 
     /**
      * Returns the path of the installation directory.
@@ -69,7 +70,7 @@ public class DataManager {
             Files.createDirectory(graphModelDir);
             boolean succ = writeGraphData(
               graphModelDir,
-              StandardCharsets.US_ASCII,
+              CHARSET,
               model
             );
             if (!succ) {
@@ -81,7 +82,7 @@ public class DataManager {
             Files.createDirectory(graphModelDir);
             writeGraphData(
               graphModelDir,
-              StandardCharsets.US_ASCII,
+              CHARSET,
               model
             );
         }
@@ -209,7 +210,6 @@ public class DataManager {
      * @return A list of graph information objects.
      */
     public static List<GraphInfo> getSavedGraphInfos() throws Exception {
-        Charset charset = StandardCharsets.US_ASCII;
         Exception thrown = null;
         List<GraphInfo> graphInfos = new ArrayList<>();
         try (
@@ -222,7 +222,7 @@ public class DataManager {
                     try (
                       BufferedReader reader = Files.newBufferedReader(
                         grFile,
-                        charset
+                        CHARSET
                       )
                     ) {
                         String name = reader.readLine();
@@ -255,7 +255,7 @@ public class DataManager {
         // read .gr file
         BufferedReader reader = Files.newBufferedReader(
           modelGrFile,
-          StandardCharsets.US_ASCII
+          CHARSET
         );
         modelName = reader.readLine();
         // throw x if name is null
@@ -324,7 +324,7 @@ public class DataManager {
     ) throws IOException {
         BufferedReader reader = Files.newBufferedReader(
           path,
-          StandardCharsets.US_ASCII
+          CHARSET
         );
         char[] buf = new char[len];
         reader.read(buf, 0, len);
@@ -336,7 +336,7 @@ public class DataManager {
     private static int[] readPositionFile(Path path) throws IOException {
         BufferedReader reader = Files.newBufferedReader(
           path,
-          StandardCharsets.US_ASCII
+          CHARSET
         );
         int[] pos = new int[2];
         String line = reader.readLine();
