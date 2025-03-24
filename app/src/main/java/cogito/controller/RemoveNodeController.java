@@ -4,12 +4,20 @@ import javax.swing.JOptionPane;
 import cogito.model.Graph;
 import cogito.model.Node;
 import cogito.view.GraphView;
+import cogito.view.DetailedNodeView;
 import java.awt.event.MouseEvent;
 
 public class RemoveNodeController extends GraphEditorMouseController {
+
+    private DetailedNodeView detailedNodeView;
     
-    public RemoveNodeController(GraphView view, Graph model) {
+    public RemoveNodeController(
+      GraphView view,
+      Graph model,
+      DetailedNodeView detailedNodeView
+    ) {
         super(view, model);
+        this.detailedNodeView = detailedNodeView;
     }
 
     @Override
@@ -28,6 +36,8 @@ public class RemoveNodeController extends GraphEditorMouseController {
         if (choice == -1 || choice == 1) // cancel/no
             return;
         this.model.remove(nodeClicked);
+        if (nodeClicked.equals(this.detailedNodeView.getModel()))
+            this.detailedNodeView.clearModel();
         this.model.updateObservers();
     }
 

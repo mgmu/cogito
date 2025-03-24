@@ -36,7 +36,6 @@ public class DetailedNodeView extends JPanel implements Observer {
 
     private JTextField titleField;
     private JTextArea infoArea;
-    private JButton editButton;
     private JButton saveButton;
 
     private JFrame appFrame;
@@ -81,7 +80,7 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.add(infoLabel, constraints);
 
         // Information area
-        this.infoArea = new JTextArea();
+        this.infoArea = new JTextArea(NO_INFO);
         this.infoArea.setEditable(false);
         this.infoArea.setLineWrap(true);
         constraints.fill = GridBagConstraints.BOTH;
@@ -92,47 +91,56 @@ public class DetailedNodeView extends JPanel implements Observer {
         constraints.gridy = 3;
         this.add(this.infoArea, constraints);
 
-
-        // Edit button
-        this.editButton = new JButton("Edit");
-        this.editButton.setEnabled(false);
-        this.editButton.addActionListener(
-          al -> {
-              this.titleField.setEditable(true);
-              this.infoArea.setEditable(true);
-              this.saveButton.setEnabled(true);
-          }
-        );
-
         // Save button
         this.saveButton = new JButton("Save");
         this.saveButton.setEnabled(false);
         this.saveButton.addActionListener(
           al -> {
-              try {
-                  this.model.setTitle(this.titleField.getText());
-              } catch (Exception e) {
-                  JOptionPane.showMessageDialog(
-                  this.appFrame,
-                  e.getMessage(),
-                  "Node title could not be updated",
-                  JOptionPane.ERROR_MESSAGE
-                );
+              boolean showSuccessDialog = false;
+              boolean error = false;
+              String newTitle = this.titleField.getText();
+              if (!newTitle.equals(this.model.getTitle())) {
+                  try {
+                      this.model.setTitle(newTitle);
+                      this.model.updateObservers();
+                      showSuccessDialog = true;
+                  } catch (Exception e) {
+                      error = true;
+                      JOptionPane.showMessageDialog(
+                        this.appFrame,
+                        e.getMessage(),
+                        "Node title could not be updated",
+                        JOptionPane.ERROR_MESSAGE
+                      );
+                  }
               }
-              try {
-                  this.model.setInformation(this.infoArea.getText());
-              } catch (Exception e) {
-                  JOptionPane.showMessageDialog(
-                  this.appFrame,
-                  e.getMessage(),
-                  "Node information could not be updated",
-                  JOptionPane.ERROR_MESSAGE
-                );
+              String newInfo = this.infoArea.getText();
+              if (!newInfo.equals(this.model.getInformation())) {
+                  try {
+                      this.model.setInformation(this.infoArea.getText());
+                      this.model.updateObservers();
+                      if (!error) {
+                          if (!showSuccessDialog)
+                              showSuccessDialog = true;
+                      }
+                  } catch (Exception e) {
+                      error = true;
+                      JOptionPane.showMessageDialog(
+                        this.appFrame,
+                        e.getMessage(),
+                        "Node information could not be updated",
+                        JOptionPane.ERROR_MESSAGE
+                      );
+                  }
               }
-              this.titleField.setEditable(false);
-              this.infoArea.setEditable(false);
-              this.saveButton.setEnabled(false);
-              this.model.updateObservers();
+              if (!error && showSuccessDialog) {
+                  JOptionPane.showMessageDialog(
+                    this.appFrame,
+                    "Node succesfully saved.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE
+                  );
+              }
           }
         );
 
@@ -145,7 +153,6 @@ public class DetailedNodeView extends JPanel implements Observer {
         constraints.gridx = 2;
         constraints.gridy = 4;
         constraints.anchor = GridBagConstraints.LAST_LINE_END;
-        buttonsPane.add(this.editButton);
         buttonsPane.add(this.saveButton);
         this.add(buttonsPane, constraints);
     }
@@ -169,8 +176,14 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.titleField.setText(model.getTitle());
         this.infoArea.setText(model.getInformation());
         this.model.subscribe(this);
-        this.editButton.setEnabled(true);
+        this.titleField.setEditable(true);
+        this.infoArea.setEditable(true);
+        this.saveButton.setEnabled(true);
         this.repaint();
+    }
+
+    public Node getModel() {
+        return this.model;
     }
 
     @Override
@@ -178,6 +191,18 @@ public class DetailedNodeView extends JPanel implements Observer {
         Node node = (Node)object;
         this.titleField.setText(node.getTitle());
         this.infoArea.setText(node.getInformation());
+        this.repaint();
+    }
+
+    public void clearModel() {
+        if (this.model != null)
+            this.model.unsubscribe(this);
+        this.model = null;
+        this.titleField.setText(NO_INFO);
+        this.titleField.setEditable(false);
+        this.infoArea.setText(NO_INFO);
+        this.infoArea.setEditable(false);
+        this.saveButton.setEnabled(false);
         this.repaint();
     }
 }
