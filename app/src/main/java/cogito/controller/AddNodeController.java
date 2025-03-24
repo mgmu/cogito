@@ -5,12 +5,15 @@ import javax.swing.JOptionPane;
 import cogito.model.Graph;
 import cogito.model.Node;
 import cogito.view.GraphView;
+import cogito.view.DetailedNodeView;
 
 /**
  * This controller creates a node at the location of the mouse click to the
  * graph model.
  */
 public class AddNodeController extends GraphEditorMouseController {
+
+    private DetailedNodeView detailedNodeView;
 
     /**
      * Creates a new AddNodeController for specified view and model.
@@ -19,8 +22,13 @@ public class AddNodeController extends GraphEditorMouseController {
      * @param model The Graph this controller acts on, not null.
      * @throws NullPointerException if view or model are null.
      */
-    public AddNodeController(GraphView view, Graph model) {
+    public AddNodeController(
+      GraphView view,
+      Graph model,
+      DetailedNodeView detailedNodeView
+    ) {
         super(view, model);
+        this.detailedNodeView = detailedNodeView;
     }
 
     @Override
@@ -39,9 +47,9 @@ public class AddNodeController extends GraphEditorMouseController {
         if (input == null)
             return;
         try {
-            this.model.add(
-              new Node(input, centerX, centerY)
-            );
+            Node newNode = new Node(input, centerX, centerY);
+            this.model.add(newNode);
+            this.detailedNodeView.setModel(newNode);
         } catch (IllegalArgumentException iae) {
             JOptionPane.showMessageDialog(
               this.view.getAppFrame(),

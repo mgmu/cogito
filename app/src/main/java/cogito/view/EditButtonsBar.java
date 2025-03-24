@@ -69,7 +69,8 @@ public class EditButtonsBar extends JPanel {
         this.preferredHeight = height;
         this.currentController = new AddNodeController(
           this.graphView,
-          this.graphModel
+          this.graphModel,
+          this.detailedNodeView
         );
         this.currentController.enable();
         this.frameManager = frameManager;
@@ -85,7 +86,8 @@ public class EditButtonsBar extends JPanel {
               }
               this.currentController = new AddNodeController(
                 this.graphView,
-                this.graphModel
+                this.graphModel,
+                this.detailedNodeView
               );
               this.currentController.enable();
           }
@@ -93,7 +95,7 @@ public class EditButtonsBar extends JPanel {
         this.add(addNodeButton);
 
         // Select node button
-        JButton selectNodeButton = new JButton("Select node");
+        JButton selectNodeButton = new JButton("Select/move node");
         selectNodeButton.addActionListener(
           al -> {
               if (this.currentController != null) {
