@@ -37,6 +37,8 @@ public class EditButtonsBar extends JPanel {
     // The detailed node view
     private DetailedNodeView detailedNodeView;
 
+    private FrameManager frameManager;
+
     // Error messages
     private static final String NULL_GRAPH_VIEW_ERROR =
         "GraphView can not be null";
@@ -55,7 +57,8 @@ public class EditButtonsBar extends JPanel {
       DetailedNodeView detailedNodeView,
       Graph graphModel,
       int width,
-      int height
+      int height,
+      FrameManager frameManager
     ) {
         this.graphView = Objects.requireNonNull(graphView,
                 NULL_GRAPH_VIEW_ERROR);
@@ -69,11 +72,12 @@ public class EditButtonsBar extends JPanel {
           this.graphModel
         );
         this.currentController.enable();
+        this.frameManager = frameManager;
 
         // Add node button
         JButton addNodeButton = new JButton("Add node");
         addNodeButton.addActionListener(
-          ae -> {
+          al -> {
               if (this.currentController != null) {
                   if (this.currentController instanceof AddNodeController)
                       return;
@@ -91,7 +95,7 @@ public class EditButtonsBar extends JPanel {
         // Select node button
         JButton selectNodeButton = new JButton("Select node");
         selectNodeButton.addActionListener(
-          ae -> {
+          al -> {
               if (this.currentController != null) {
                   if (this.currentController instanceof SelectNodeController)
                       return;
@@ -110,7 +114,7 @@ public class EditButtonsBar extends JPanel {
         // Link node button
         JButton linkNodeButton = new JButton("Link node");
         linkNodeButton.addActionListener(
-          ae -> {
+          al -> {
               if (this.currentController != null) {
                   if (this.currentController instanceof LinkNodeController)
                       return;
@@ -128,7 +132,7 @@ public class EditButtonsBar extends JPanel {
         // Remove node button
         JButton removeNodeButton = new JButton("Remove node");
         removeNodeButton.addActionListener(
-          ae -> {
+          al -> {
               if (this.currentController != null) {
                   if (this.currentController instanceof RemoveNodeController)
                       return;
@@ -146,31 +150,45 @@ public class EditButtonsBar extends JPanel {
         // Save graph button
         JButton saveGraphButton = new JButton("Save graph");
         saveGraphButton.addActionListener(
-          ae -> {
-              try {
-                  DataManager.saveGraph(this.graphModel);
-                  JOptionPane.showMessageDialog(
-                    this.graphView.getAppFrame(),
-                    "Graph succesfully saved!",
-                    "Succes",
-                    JOptionPane.INFORMATION_MESSAGE
-                  );
-              } catch (IOException ioe) {
-                  JOptionPane.showMessageDialog(
-                    this.graphView.getAppFrame(),
-                    "I/O error: " + ioe.getMessage(),
-                    "Graph could not be saved",
-                    JOptionPane.ERROR_MESSAGE
-                  );
-              }
-          }
+          al -> this.saveGraph()
         );
         this.add(saveGraphButton);
+
+        JButton backToMainScreenButton = new JButton("Back to main screen");
+        backToMainScreenButton.addActionListener(
+          al -> {
+              this.saveGraph();
+              this.frameManager.setCurrentScreen(
+                new MainScreen(this.frameManager)
+              );
+          }
+        );
+        this.add(backToMainScreenButton);
+        
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(this.preferredWidth, this.preferredHeight);
+    }
+
+    private void saveGraph() {
+        try {
+            DataManager.saveGraph(this.graphModel);
+            JOptionPane.showMessageDialog(
+              this.graphView.getAppFrame(),
+              "Graph succesfully saved!",
+              "Succes",
+              JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (IOException ioe) {
+            JOptionPane.showMessageDialog(
+              this.graphView.getAppFrame(),
+              "I/O error: " + ioe.getMessage(),
+              "Graph could not be saved",
+              JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }

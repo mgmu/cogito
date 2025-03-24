@@ -49,7 +49,8 @@ public class GraphEditor extends Screen {
             this.detailedNodeView,
             this.model,
             PREFERRED_WIDTH,
-            50
+            50,
+            this.frameManager
           ),
           BorderLayout.NORTH
         );
