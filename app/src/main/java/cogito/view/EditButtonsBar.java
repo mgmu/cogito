@@ -142,7 +142,8 @@ public class EditButtonsBar extends JPanel {
               }
               this.currentController = new RemoveNodeController(
                 this.graphView,
-                this.graphModel
+                this.graphModel,
+                this.detailedNodeView
               );
               this.currentController.enable();
           }
