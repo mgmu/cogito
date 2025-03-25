@@ -31,6 +31,13 @@ public class NodeView implements Observer {
     private int titleBaseLineX = 0;
     private int titleBaseLineY = 0;
 
+    /**
+     * Creates a new NodeView with given model.
+     *
+     * @param model The model of this NodeView, not null.
+     * @param graphView The graph view of the graph editor, not null.
+     * @throws NullPointerException if model or graphView are null.
+     */
     public NodeView(Node model, GraphView graphView) {
         this.model = Objects.requireNonNull(model, "Node can not be null");
         this.graphView = Objects.requireNonNull(graphView,

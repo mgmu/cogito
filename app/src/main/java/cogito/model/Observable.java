@@ -2,6 +2,10 @@ package cogito.model;
 
 import cogito.view.Observer;
 
+/**
+ * An observable objects accepts other objects to be updated when its state
+ * changes.
+ */
 public interface Observable {
 
     /**

@@ -1,5 +1,8 @@
 package cogito.view;
 
+/**
+ * An observer is updated with data relative to the object observed.
+ */
 public interface Observer {
 
     /**

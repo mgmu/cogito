@@ -5,6 +5,9 @@ import cogito.view.GraphView;
 import cogito.model.Graph;
 import cogito.model.Node;
 
+/**
+ * This controller unlinks two selected nodes of the graph view.
+ */
 public class UnlinkNodeController extends GraphEditorMouseController {
 
     // The source of the link.

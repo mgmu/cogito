@@ -117,6 +117,15 @@ public class Node implements Observable {
         this.information = information;
     }
 
+    /**
+     * Creates a Node of given title, information, position and identifier.
+     *
+     * @param title The title of the node.
+     * @param information The information of the node.
+     * @param x The x position in the graph space of the node.
+     * @param y The y position in the grpah space of the node.
+     * @param id The UUID of the node.
+     */
     public Node(String title, String information, int x, int y, UUID id) {
         this.title = title;
         this.information = information;
@@ -159,6 +168,15 @@ public class Node implements Observable {
         return this.information;
     }
 
+    /**
+     * Sets the new value of the information that this Node holds.
+     *
+     * @param newInformation The new information, limited to 5000 chars, not
+     *        null.
+     * @throws NullPointerException if newInformation is null.
+     * @throws IllegalArgumentException if newInformation length is greater than
+     *         5000 chars.
+     */
     public void setInformation(String newInformation) {
         checkInformationValidity(newInformation);
         this.information = newInformation;

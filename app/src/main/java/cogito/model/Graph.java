@@ -81,6 +81,12 @@ public class Graph implements Observable {
         this.name = name;
     }
 
+    /**
+     * Creates a new named graph of given identifier.
+     *
+     * @param name The name of the graph.
+     * @param identifier The identifier of the graph.
+     */
     public Graph(String name, UUID identifier) {
         this.name = name;
         this.identifier = identifier;
@@ -167,6 +173,17 @@ public class Graph implements Observable {
         this.updateObservers();
     }
 
+    /**
+     * Unlinks the first node of the second node.
+     *
+     * If src and dst are present but src is not linked to dst, does nothing.
+     *
+     * @param src The source of the link, not null.
+     * @param dst The source of the link, not null.
+     * @throws NullPointerException if src or dst are null.
+     * @throws IllegalArgumentException if src is absent, or if dst is absent,
+     *         or if src and dst are equal.
+     */
     public void unlink(Node src, Node dst) {
         Objects.requireNonNull(src, "Source must be not null");
         Objects.requireNonNull(dst, "Destination must be not null");
@@ -311,10 +328,23 @@ public class Graph implements Observable {
         return builder.toString();
     }
 
+    /**
+     * Returns name and identifier information of this graph.
+     *
+     * @return A graph information object with the name and the identifier of
+     *         this graph.
+     */
     public GraphInfo getGraphInfo() {
         return new GraphInfo(this.name, this.identifier);
     }
 
+    /**
+     * Returns the node identified with the given identifier as string in this
+     * graph.
+     *
+     * @param identifier A UUID identifier as a string.
+     * @return The corresponding node, or null if it is absent.
+     */
     public Node getNode(String identifier) {
         for (Node node: this.getNodes()) {
             if (node.getUuid().toString().equals(identifier))

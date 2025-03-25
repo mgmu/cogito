@@ -13,6 +13,7 @@ import cogito.view.DetailedNodeView;
  */
 public class AddNodeController extends GraphEditorMouseController {
 
+    // The detailed node view, updated with the title of the newly added node.
     private DetailedNodeView detailedNodeView;
 
     /**
@@ -20,6 +21,7 @@ public class AddNodeController extends GraphEditorMouseController {
      *
      * @param view The GraphView this controller listens to, not null.
      * @param model The Graph this controller acts on, not null.
+     * @param detailedNodeView The detailed node view of the graph editor.
      * @throws NullPointerException if view or model are null.
      */
     public AddNodeController(

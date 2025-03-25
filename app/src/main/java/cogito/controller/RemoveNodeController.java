@@ -7,10 +7,21 @@ import cogito.view.GraphView;
 import cogito.view.DetailedNodeView;
 import java.awt.event.MouseEvent;
 
+/**
+ * This controller removes the node clicked on, if any, from the graph model.
+ */
 public class RemoveNodeController extends GraphEditorMouseController {
 
     private DetailedNodeView detailedNodeView;
     
+    /**
+     * Creates a new RemoveNodeController for the given model.
+     *
+     * @param view The graph view of the graph model.
+     * @param model The graph model.
+     * @param detailedNodeView The detailed node view of the graph editor.
+     * @throws NullPointerException if view or model are null.
+     */
     public RemoveNodeController(
       GraphView view,
       Graph model,
