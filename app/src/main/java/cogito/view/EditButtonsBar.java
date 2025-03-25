@@ -13,6 +13,7 @@ import cogito.controller.AddNodeController;
 import cogito.controller.SelectNodeController;
 import cogito.controller.LinkNodeController;
 import cogito.controller.RemoveNodeController;
+import cogito.controller.UnlinkNodeController;
 import cogito.model.Graph;
 import cogito.util.DataManager;
 
@@ -167,6 +168,23 @@ public class EditButtonsBar extends JPanel {
           }
         );
         this.add(backToMainScreenButton);
+
+        JButton unlinkNodeButton = new JButton("Unlink node");
+        unlinkNodeButton.addActionListener(
+          al -> {
+              if (this.currentController != null) {
+                  if (this.currentController instanceof UnlinkNodeController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new UnlinkNodeController(
+                this.graphView,
+                this.graphModel
+              );
+              this.currentController.enable();
+          }
+        );
+        this.add(unlinkNodeButton);
         
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
