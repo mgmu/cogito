@@ -7,6 +7,11 @@ import cogito.model.Node;
 import cogito.view.GraphView;
 import cogito.view.DetailedNodeView;
 
+/**
+ * This controller moves the node pressed according to mouse position and
+ * populates the detailed node view of the graph editor with the data of the
+ * node clicked on.
+ */
 public class SelectNodeController extends GraphEditorMouseController {
 
     private DetailedNodeView detailedNodeView;

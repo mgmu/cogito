@@ -58,6 +58,7 @@ public class DataManager {
      * Saves model locally, in the graph directory.
      *
      * @param model The graph model to save.
+     * @throws IOException if an I/O error occurred.
      */
     public static void saveGraph(Graph model) throws IOException {
         String graphUuid = model.getUuid().toString();
@@ -88,6 +89,7 @@ public class DataManager {
         }
     }
 
+    // Writes .gr file and node directories
     private static boolean writeGraphData(
       Path dir,
       Charset charset,
@@ -205,9 +207,13 @@ public class DataManager {
     /**
      * Returns the list of saved graph informations.
      *
-     * Searchs for graphs saved locally and returns their names and identifiers.
+     * Searches for graphs saved locally and returns their names and
+     * identifiers.
      *
      * @return A list of graph information objects.
+     * @throws Exception if an I/O error occurred, in which case it is an
+     *         IOException, or if an error occurred while iterating over a
+     *         directory, in which case it is a DirectoryIteratorException.
      */
     public static List<GraphInfo> getSavedGraphInfos() throws Exception {
         Exception thrown = null;
@@ -245,6 +251,13 @@ public class DataManager {
         return graphInfos;
     }
 
+    /**
+     * Returns the graph of given identifier from local storage.
+     *
+     * @param identifier The identifier of the graph to return.
+     * @return The graph of given identifier.
+     * @throws IOException if an I/O error occurred.
+     */
     public static Graph loadGraph(UUID identifier) throws IOException {
         String id = identifier.toString();
         String modelName = null;
@@ -299,11 +312,11 @@ public class DataManager {
         
         // read title
         Path nodeTitleFile = nodeDir.resolve("title");
-        String title = readAsciiFileContent(nodeTitleFile, 100);
+        String title = readUTF16FileContent(nodeTitleFile, 100);
 
         // read information
         Path nodeInfoFile = nodeDir.resolve("info");
-        String information = readAsciiFileContent(nodeInfoFile, 5000);
+        String information = readUTF16FileContent(nodeInfoFile, 5000);
             
         // read position
         Path nodePosFile = nodeDir.resolve("position");
@@ -318,7 +331,7 @@ public class DataManager {
         );
     }
 
-    private static String readAsciiFileContent(
+    private static String readUTF16FileContent(
       Path path,
       int len
     ) throws IOException {

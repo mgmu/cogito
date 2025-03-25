@@ -11,20 +11,40 @@ import cogito.model.Graph;
 public class GraphEditor extends Screen {
 
     // Preferred dimensions of a GraphEditor
+    /**
+     * Preferred width of a graph editor.
+     */
     private static final int PREFERRED_WIDTH = 1920;
+
+    /**
+     * Preferred height of a graph editor.
+     */
     private static final int PREFERRED_HEIGHT = 1080;
 
-    // The model to edit
+    /**
+     * The model to edit.
+     */
     private final Graph model;
 
-    // The view of the model to edit.
+    /**
+     * The view of the model to edit.
+     */
     private final GraphView graphView;
 
+    /**
+     * The detailed node view.
+     */
     private final DetailedNodeView detailedNodeView;
 
     // Error message to show when graph is null
     private static final String NULL_GRAPH_ERROR = "Graph can not be null";
 
+    /**
+     * Creates a new graph editor for given model.
+     *
+     * @param frameManager The frameManager of the app.
+     * @param model The graph model to edit.
+     */
     public GraphEditor(FrameManager frameManager, Graph model) {
         super(frameManager);
         Objects.requireNonNull(model, NULL_GRAPH_ERROR);

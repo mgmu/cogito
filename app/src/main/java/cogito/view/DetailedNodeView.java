@@ -25,19 +25,41 @@ import cogito.model.Node;
  */
 public class DetailedNodeView extends JPanel implements Observer {
 
-    // The node model.
+    /**
+     * The node model.
+     */
     private Node model;
 
-    // Preferred Dimension of this DetailedNodeView.
+    /**
+     * Preferred width of this detailed node view.
+     */
     private int preferredWidth;
+
+    /**
+     * Preferred height of this detailed node view.
+     */
     private int preferredHeight;
 
     private static final String NO_INFO = "No information";
 
+    /**
+     * The node title field.
+     */
     private JTextField titleField;
+
+    /**
+     * The node information text area.
+     */
     private JTextArea infoArea;
+
+    /**
+     * The save button.
+     */
     private JButton saveButton;
 
+    /**
+     * The application frame.
+     */
     private JFrame appFrame;
     
     /**
@@ -182,6 +204,11 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.repaint();
     }
 
+    /**
+     * Returns the current model of this detailed node view.
+     *
+     * @return The node model, or null if there is none.
+     */
     public Node getModel() {
         return this.model;
     }
@@ -194,6 +221,11 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.repaint();
     }
 
+    /**
+     * Clears the model of this detailed node view.
+     *
+     * This detailed node view unsubscribes from it before removal.
+     */
     public void clearModel() {
         if (this.model != null)
             this.model.unsubscribe(this);

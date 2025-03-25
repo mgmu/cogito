@@ -32,22 +32,34 @@ import cogito.util.DataManager;
  */
 public class MainScreen extends Screen implements ListSelectionListener {
 
-    // Preferred width of the panel
+    /**
+     * Preferred width of the panel.
+     */
     private static final int PREFERRED_WIDTH = 400;
 
-    // Preferred height of the panel
+    /**
+     * Preferred height of the panel.
+     */
     private static final int PREFERRED_HEIGHT = 200;
     
-    // List of graph names.
+    /**
+     * List of graph names.
+     */
     private JList<Object> graphNames;
 
-    // New graph button.
+    /**
+     * New graph button.
+     */
     private JButton newButton;
 
-    // Open graph button.
+    /**
+     * Open graph button.
+     */
     private JButton openButton;
 
-    // Name and identifier of saved graphs.
+    /**
+     * Name and identifier of saved graphs.
+     */
     private List<GraphInfo> graphInfos;
 
     /**

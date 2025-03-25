@@ -31,18 +31,44 @@ import cogito.model.Node;
  */
 public class GraphView extends JPanel implements Observer {
 
-    // The model represented by this GraphView.
+    /**
+     * The model represented by this GraphView.
+     */
     private Graph model;
+
+    /**
+     * The node views of the nodes of the graph model.
+     */
     private List<NodeView> nodeViews;
+
+    /**
+     * The link views of the links of the graph model.
+     */
     private ArrayList<Pair<Point, Point>> linkViews;
+
+    /**
+     * The selected node view.
+     */
     private NodeView selectedNodeView;
 
-    // Preferred dimensions of this GraphView.
+    /**
+     * Preferred width of this GraphView.
+     */
     private final int preferredWidth;
+
+    /**
+     * Preferred height of this GraphView.
+     */
     private final int preferredHeight;
+
+    /**
+     * Indicates if the selection circles are visible.
+     */
     private boolean isSelectionCircleVisible;
 
-    // The frame of the app.
+    /**
+     * The frame of the app.
+     */
     private JFrame appFrame;
 
     // The radius of the selection circle.
@@ -224,6 +250,10 @@ public class GraphView extends JPanel implements Observer {
         }
     }
 
+    /**
+     * Hides the circle around a node indicating that is selected in the graph
+     * editor.
+     */
     public void hideSelectedCircle() {
         this.selectedNodeView = null;
         this.repaint();

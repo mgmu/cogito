@@ -22,22 +22,39 @@ import cogito.util.DataManager;
  */
 public class EditButtonsBar extends JPanel {
     
-    // Preferred dimensions of this bar.
+    /**
+     * Preferred width of this bar.
+     */
     private final int preferredWidth;
+
+    /**
+     * Preferred height of this bar.
+     */
     private final int preferredHeight;
 
-    // The mouse controller of the graph editor.
+    /**
+     * The mouse controller of the graph editor.
+     */
     private GraphEditorMouseController currentController;
 
-    // The view of the edited graph.
+    /**
+     * The view of the edited graph.
+     */
     private GraphView graphView;
 
-    // The graph model represented in the graph editor.
+    /**
+     * The graph model represented in the graph editor.
+     */
     private Graph graphModel;
 
-    // The detailed node view
+    /**
+     * The detailed node view.
+     */
     private DetailedNodeView detailedNodeView;
 
+    /**
+     * The frame manager.
+     */
     private FrameManager frameManager;
 
     // Error messages
@@ -49,9 +66,11 @@ public class EditButtonsBar extends JPanel {
      * Creates a new buttons bar populated with supported edit operations.
      *
      * @param graphView The view of the graph model, not null.
+     * @param detailedNodeView The detailed node view of the graph editor.
      * @param graphModel The graph model, not null.
      * @param width The preferred width of the bar.
      * @param height The preferred height of the bar.
+     * @param frameManager The frame manager of the app.
      */
     public EditButtonsBar(
       GraphView graphView,
