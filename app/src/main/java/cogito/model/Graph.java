@@ -167,6 +167,19 @@ public class Graph implements Observable {
         this.updateObservers();
     }
 
+    public void unlink(Node src, Node dst) {
+        Objects.requireNonNull(src, "Source must be not null");
+        Objects.requireNonNull(dst, "Destination must be not null");
+        if (!this.contains(src) || !this.contains(dst))
+            throw new IllegalArgumentException(ABSENT_NODE_ERROR);
+        if (src.equals(dst))
+            throw new IllegalArgumentException(
+              "Node can not be unlinked of itself"
+            );
+        List<Node> value = this.adj.get(src);
+        value.remove(dst);
+    }
+
     /**
      * Returns the list of nodes linked to the given node.
      *

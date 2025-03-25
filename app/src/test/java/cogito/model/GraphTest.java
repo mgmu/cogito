@@ -228,6 +228,63 @@ class GraphTest {
         );
     }
 
+    @Test
+    void unlinkWithNullSrcThrowsNPE() {
+        TestUtils.assertThrowsNPEWithMsg(
+          "Source must be not null",
+          () -> sut.unlink(null, null)
+        );
+    }
+
+    @Test
+    void unlinkWithNullDstThrowsNPE() {
+        Node node = new Node("test");
+        sut.add(node);
+        TestUtils.assertThrowsNPEWithMsg(
+          "Destination must be not null",
+          () -> sut.unlink(node, null)
+        );
+    }
+
+    @Test
+    void unlinkWithAbsentSrcThrowsIAE() {
+        TestUtils.assertThrowsIAEWithMsg(
+          "Node not in graph",
+          () -> sut.unlink(new Node("4"), new Node("2"))
+        );
+    }
+
+    @Test
+    void unlinkWithAbsentDstThrowsIAE() {
+        Node node = new Node("42");
+        sut.add(node);
+        TestUtils.assertThrowsIAEWithMsg(
+          "Node not in graph",
+          () -> sut.unlink(node, new Node("2"))
+        );
+    }
+
+    @Test
+    void unlinkWithSameNodeThrowsIAE() {
+        Node node = new Node("42");
+        sut.add(node);
+        TestUtils.assertThrowsIAEWithMsg(
+          "Node can not be unlinked of itself",
+          () -> sut.unlink(node, node)
+        );
+    }
+
+    @Test
+    void unlinkSrcFromDstRemovesNeighbor() {
+        Node n1 = new Node("42");
+        Node n2 = new Node("what is the question?");
+        sut.add(n1);
+        sut.add(n2);
+        sut.link(n1, n2);
+        sut.unlink(n1, n2);
+        assertTrue(sut.getNodesLinkedTo(n1).isEmpty());
+    }
+
     @Nested
     class AfterAddingAnObserver {
         DummyObserver obs;

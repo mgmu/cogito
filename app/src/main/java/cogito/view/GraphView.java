@@ -171,7 +171,6 @@ public class GraphView extends JPanel implements Observer {
             for (Node neighbor: neighbors) {
                 Point dst = new Point(neighbor.getX(), neighbor.getY());
                 this.linkViews.add(new Pair<>(src, dst));
-                System.out.println("add link from " + node.getTitle() + " to " + neighbor.getTitle());
             }
         }
     }
