@@ -48,6 +48,7 @@ public class LinkNodeController extends GraphEditorMouseController {
         } else {
             this.dst = nodeClicked;
             this.model.link(this.src, this.dst);
+            this.model.updateObservers();
             this.setSrcAndDstToNull();
         }
     }

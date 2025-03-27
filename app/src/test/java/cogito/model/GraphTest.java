@@ -6,19 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
-import cogito.view.Observer;
 import cogito.TestUtils;
 
 class GraphTest {
     Graph sut;
-
-    class DummyObserver implements Observer {
-        boolean updated = false;
-
-        public void updateWithData(Object object) {
-            updated = true;
-        }
-    }
 
     @BeforeEach
     void createNewGraph() {
@@ -286,58 +277,6 @@ class GraphTest {
     }
 
     @Nested
-    class AfterAddingAnObserver {
-        DummyObserver obs;
-
-        @BeforeEach
-        void addAnObserver() {
-            obs = new DummyObserver();
-            sut.subscribe(obs);
-        }
-
-        @Test
-        void updateWithUnsubscribedObserverThrowsIAE() {
-            DummyObserver other = new DummyObserver();
-            TestUtils.assertThrowsIAEWithMsg("Observer not subscribed",
-                    () -> sut.update(other));
-        }
-
-        @Test
-        void updateAfterSubscriptionUpdatesObserver() {
-            sut.update(obs);
-            assertTrue(obs.updated);
-        }
-
-        @Test
-        void subscribeTwiceThrowsIAE() {
-            TestUtils.assertThrowsIAEWithMsg("Observer already subscribed",
-                    () -> sut.subscribe(obs));
-        }
-
-        @Test
-        void updateObserversUpdatesEveryObserverSubscribed() {
-            DummyObserver other = new DummyObserver();
-            sut.subscribe(other);
-            sut.updateObservers();
-            assertTrue(obs.updated);
-            assertTrue(other.updated);
-        }
-
-        @Test
-        void observerSubscribedThenUnsubscribedIsNotUpdated() {
-            sut.unsubscribe(obs);
-            sut.updateObservers();
-            assertFalse(obs.updated);
-        }
-
-        @Test
-        void observerSubscribedIsUpdatedAfterAddingANode() {
-            sut.add(new Node("test"));
-            assertTrue(obs.updated);
-        }
-    }
-
-    @Nested
     class AfterAddingANode{
         Node node;
 
@@ -382,16 +321,6 @@ class GraphTest {
         @Test
         void getNodesLinkedToNodeWithNoLinksReturnsTheEmptyList() {
             assertTrue(sut.getNodesLinkedTo(node).isEmpty());
-        }
-
-        @Test
-        void observerIsUpdatedAfterLinkingTwoNodes() {
-            Node other = new Node("test");
-            sut.add(other);
-            DummyObserver obs = new DummyObserver();
-            sut.subscribe(obs);
-            sut.link(node, other);
-            assertTrue(obs.updated);
         }
 
         @Test
