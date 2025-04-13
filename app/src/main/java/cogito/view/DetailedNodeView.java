@@ -105,6 +105,7 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.infoArea = new JTextArea(NO_INFO);
         this.infoArea.setEditable(false);
         this.infoArea.setLineWrap(true);
+        this.infoArea.setWrapStyleWord(true);
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
