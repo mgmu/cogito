@@ -53,9 +53,9 @@ public class DetailedNodeView extends JPanel implements Observer {
     private JTextArea infoArea;
 
     /**
-     * The save button.
+     * The update button.
      */
-    private JButton saveButton;
+    private JButton updateButton;
 
     /**
      * The application frame.
@@ -113,57 +113,11 @@ public class DetailedNodeView extends JPanel implements Observer {
         constraints.gridy = 3;
         this.add(this.infoArea, constraints);
 
-        // Save button
-        this.saveButton = new JButton("Save");
-        this.saveButton.setEnabled(false);
-        this.saveButton.addActionListener(
-          al -> {
-              boolean showSuccessDialog = false;
-              boolean error = false;
-              String newTitle = this.titleField.getText();
-              if (!newTitle.equals(this.model.getTitle())) {
-                  try {
-                      this.model.setTitle(newTitle);
-                      this.model.updateObservers();
-                      showSuccessDialog = true;
-                  } catch (Exception e) {
-                      error = true;
-                      JOptionPane.showMessageDialog(
-                        this.appFrame,
-                        e.getMessage(),
-                        "Node title could not be updated",
-                        JOptionPane.ERROR_MESSAGE
-                      );
-                  }
-              }
-              String newInfo = this.infoArea.getText();
-              if (!newInfo.equals(this.model.getInformation())) {
-                  try {
-                      this.model.setInformation(this.infoArea.getText());
-                      this.model.updateObservers();
-                      if (!error) {
-                          if (!showSuccessDialog)
-                              showSuccessDialog = true;
-                      }
-                  } catch (Exception e) {
-                      error = true;
-                      JOptionPane.showMessageDialog(
-                        this.appFrame,
-                        e.getMessage(),
-                        "Node information could not be updated",
-                        JOptionPane.ERROR_MESSAGE
-                      );
-                  }
-              }
-              if (!error && showSuccessDialog) {
-                  JOptionPane.showMessageDialog(
-                    this.appFrame,
-                    "Node succesfully saved.",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE
-                  );
-              }
-          }
+        // Update button
+        this.updateButton = new JButton("Update");
+        this.updateButton.setEnabled(false);
+        this.updateButton.addActionListener(
+          al -> this.updateModel()
         );
 
         // Buttons pane
@@ -175,7 +129,7 @@ public class DetailedNodeView extends JPanel implements Observer {
         constraints.gridx = 2;
         constraints.gridy = 4;
         constraints.anchor = GridBagConstraints.LAST_LINE_END;
-        buttonsPane.add(this.saveButton);
+        buttonsPane.add(this.updateButton);
         this.add(buttonsPane, constraints);
     }
 
@@ -200,7 +154,7 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.model.subscribe(this);
         this.titleField.setEditable(true);
         this.infoArea.setEditable(true);
-        this.saveButton.setEnabled(true);
+        this.updateButton.setEnabled(true);
         this.repaint();
     }
 
@@ -234,7 +188,62 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.titleField.setEditable(false);
         this.infoArea.setText(NO_INFO);
         this.infoArea.setEditable(false);
-        this.saveButton.setEnabled(false);
+        this.updateButton.setEnabled(false);
         this.repaint();
+    }
+
+    // Updates model title if it changed, if model is not null.
+    // Returns true if the operation was succesfull.
+    private boolean updateModelTitle() {
+        if (this.model == null)
+            return true;
+        String newTitle = this.titleField.getText();
+        if (!newTitle.equals(this.model.getTitle())) {
+            try {
+                this.model.setTitle(newTitle);
+                this.model.updateObservers();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                  this.appFrame,
+                  e.getMessage(),
+                  "Node title could not be updated",
+                  JOptionPane.ERROR_MESSAGE
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Updates model information if it changed, if model is not null.
+    // Returns true if the operation was succesfull.    
+    private boolean updateModelInformation() {
+        if (this.model == null)
+            return true;
+        String newInfo = this.infoArea.getText();
+        if (!newInfo.equals(this.model.getInformation())) {
+            try {
+                this.model.setInformation(this.infoArea.getText());
+                this.model.updateObservers();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                  this.appFrame,
+                  e.getMessage(),
+                  "Node information could not be updated",
+                  JOptionPane.ERROR_MESSAGE
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Updates model title and information.
+     *
+     * @return true if the operation was succesfull.
+     */
+    public boolean updateModel() {
+        return this.updateModelTitle() && this.updateModelInformation();
     }
 }
