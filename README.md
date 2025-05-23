@@ -9,8 +9,13 @@ This software lets you create independent graphs and visualize them.
 The data is stored locally on your device, no Internet connection required.
 
 ## How to install
+### From source code
 You can install the software by cloning this repository on your machine and run
 `./gradlew run` while in the repository root directory.
+
+### From installers
+Two installers are provided, for Windows (a `.exe`) and Debian-based
+distributions (a `.deb`). Look for them in the `Release` section.
 
 ## How to use
 First we create a new graph and give it a name.
