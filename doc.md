@@ -17,3 +17,50 @@ UUID1,UUID2,UUID3
 UUID2
 UUID3,UUID1
 ```
+
+## Installers
+### Windows
+In a Windows command prompt, in the directory that contains the `.jar` file:
+
+```bash
+jpackage --input . \
+         --name "Cogito" \
+         --main-jar app.jar \
+         --main-class cogito.Main \
+         --type exe \
+         --win-dir-chooser \
+         --win-menu \
+         --win-shortcut
+         --app-version <VERSION>
+```
+
+Options:
+
+- `--input .`: assembles everyting in the current directory.
+
+- `--name "Cogito": names the executable "Cogito".
+
+- `--main-jar app.jar`: specifies the name of `.jar` file to assemble.
+
+- `--main-class cogito.Main`: specifies the name of main class.
+
+- `--type exe`: creates a `.exe` executable.
+
+- `--win-dir-chooser`: lets the user specify the installation directory.
+
+- `--win-menu`: adds a shortcut to Start applications.
+
+- `--win-shortcut`: creates a desktop shortcut.
+
+- `--app-version <VERSION>`: sets the app version to `<VERSION>`
+
+### Debian-based distributions
+
+```bash
+jpackage --input . \
+         --name "Cogito" \
+         --main-jar app.jar \
+         --main-class cogito.Main \
+         --type deb \
+         --app-version <VERSION>
+```
