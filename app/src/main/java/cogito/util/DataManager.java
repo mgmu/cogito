@@ -295,9 +295,10 @@ public class DataManager {
             }
             for (String neighborUuid: tmpAdj.get(nodeUuid)) {
                 Node neighbor = model.getNode(neighborUuid);
-                if (neighbor == null)
+                if (neighbor == null) {
                     neighbor = loadNode(modelDir, neighborUuid);
-                model.add(neighbor);
+                    model.add(neighbor);
+                }
                 model.link(curr, neighbor);
             }
         }

@@ -167,10 +167,10 @@ public class MainScreen extends Screen implements ListSelectionListener {
                       this.frameManager.setCurrentScreen(
                         new GraphEditor(this.frameManager, model)
                       );
-                  } catch (IOException ioe) {
+                  } catch (Exception e) {
                       JOptionPane.showMessageDialog(
                         frameManager.getAppFrame(),
-                        "Could not open graph.",
+                        e.getMessage(),
                         "Could not open graph",
                         JOptionPane.ERROR_MESSAGE
                       );
