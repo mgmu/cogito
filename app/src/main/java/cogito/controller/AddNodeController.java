@@ -49,12 +49,11 @@ public class AddNodeController extends GraphEditorMouseController {
         if (input == null)
             return;
         try {
-            if (this.detailedNodeView.updateModel()) {
-                Node newNode = new Node(input, centerX, centerY);
-                this.model.add(newNode);
-                this.detailedNodeView.setModel(newNode);
-                this.model.updateObservers();
-            }
+            Node newNode = new Node(input, centerX, centerY);
+            this.model.add(newNode);
+            this.detailedNodeView.clearModel();
+            this.detailedNodeView.setModel(newNode);
+            this.model.updateObservers();
         } catch (IllegalArgumentException iae) {
             JOptionPane.showMessageDialog(
               this.view.getAppFrame(),

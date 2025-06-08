@@ -23,45 +23,35 @@ import cogito.model.Node;
 /**
  * Detailed view of a selected node.
  */
-public class DetailedNodeView extends JPanel implements Observer {
+public class DetailedNodeView extends JPanel {
 
-    /**
-     * The node model.
-     */
+    // The node model.
     private Node model;
 
-    /**
-     * Preferred width of this detailed node view.
-     */
+    // Preferred width of this detailed node view.
     private int preferredWidth;
 
-    /**
-     * Preferred height of this detailed node view.
-     */
+    // Preferred height of this detailed node view.
     private int preferredHeight;
 
     private static final String NO_INFO = "No information";
 
-    /**
-     * The node title field.
-     */
+    // The node title field.
     private JTextField titleField;
 
-    /**
-     * The node information text area.
-     */
+    // The node information text area.
     private JTextArea infoArea;
 
-    /**
-     * The update button.
-     */
-    private JButton updateButton;
+    // The save button.
+    private JButton saveButton;
 
-    /**
-     * The application frame.
-     */
+    // The application frame.
     private JFrame appFrame;
     
+    // Node title and information documents listeners
+    private NodeInformationListener nodeInformationListener;
+    private NodeTitleListener nodeTitleListener;
+
     /**
      * Creates a new detailed view of a node with the specified dimensions.
      *
@@ -74,6 +64,8 @@ public class DetailedNodeView extends JPanel implements Observer {
         this.preferredWidth = width;
         this.preferredHeight = height;
         this.appFrame = appFrame;
+        this.nodeInformationListener = null;
+        this.nodeTitleListener = null;
 
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -113,25 +105,6 @@ public class DetailedNodeView extends JPanel implements Observer {
         constraints.gridx = 0;
         constraints.gridy = 3;
         this.add(this.infoArea, constraints);
-
-        // Update button
-        this.updateButton = new JButton("Update");
-        this.updateButton.setEnabled(false);
-        this.updateButton.addActionListener(
-          al -> this.updateModel()
-        );
-
-        // Buttons pane
-        JPanel buttonsPane = new JPanel();
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
-        constraints.gridwidth = 1;
-        constraints.gridx = 2;
-        constraints.gridy = 4;
-        constraints.anchor = GridBagConstraints.LAST_LINE_END;
-        buttonsPane.add(this.updateButton);
-        this.add(buttonsPane, constraints);
     }
 
     @Override
@@ -140,22 +113,35 @@ public class DetailedNodeView extends JPanel implements Observer {
     }
 
     /**
-     * Sets the model and updates viewed information.
-     *
-     * Unsubscribes from the previous model if there was any.
+     * Sets the model and saves viewed information.
      *
      * @param model The new model of this view.
      */
     public void setModel(Node model) {
-        if (this.model != null)
-            this.model.unsubscribe(this);
         this.model = model;
+
+        // Setup title document listener
         this.titleField.setText(model.getTitle());
-        this.infoArea.setText(model.getInformation());
-        this.model.subscribe(this);
+        this.nodeTitleListener = new NodeTitleListener(
+          this.appFrame,
+          this.model
+        );
+        this.titleField
+            .getDocument()
+            .addDocumentListener(this.nodeTitleListener);
         this.titleField.setEditable(true);
+
+        // Setup information document listener
+        this.infoArea.setText(model.getInformation());
+        this.nodeInformationListener = new NodeInformationListener(
+          this.appFrame,
+          this.model
+        );
+        this.infoArea
+            .getDocument()
+            .addDocumentListener(this.nodeInformationListener);
         this.infoArea.setEditable(true);
-        this.updateButton.setEnabled(true);
+
         this.repaint();
     }
 
@@ -168,83 +154,26 @@ public class DetailedNodeView extends JPanel implements Observer {
         return this.model;
     }
 
-    @Override
-    public void updateWithData(Object object) {
-        Node node = (Node)object;
-        this.titleField.setText(node.getTitle());
-        this.infoArea.setText(node.getInformation());
-        this.repaint();
-    }
-
     /**
      * Clears the model of this detailed node view.
-     *
-     * This detailed node view unsubscribes from it before removal.
      */
     public void clearModel() {
-        if (this.model != null)
-            this.model.unsubscribe(this);
         this.model = null;
+
+        // remove title document listener before clearing title field
+        this.titleField
+            .getDocument()
+            .removeDocumentListener(this.nodeTitleListener);
         this.titleField.setText(NO_INFO);
         this.titleField.setEditable(false);
+
+        // remove information document listener before clearing title field
+        this.infoArea
+            .getDocument()
+            .removeDocumentListener(this.nodeInformationListener);
         this.infoArea.setText(NO_INFO);
         this.infoArea.setEditable(false);
-        this.updateButton.setEnabled(false);
+
         this.repaint();
-    }
-
-    // Updates model title if it changed, if model is not null.
-    // Returns true if the operation was succesfull.
-    private boolean updateModelTitle() {
-        if (this.model == null)
-            return true;
-        String newTitle = this.titleField.getText();
-        if (!newTitle.equals(this.model.getTitle())) {
-            try {
-                this.model.setTitle(newTitle);
-                this.model.updateObservers();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(
-                  this.appFrame,
-                  e.getMessage(),
-                  "Node title could not be updated",
-                  JOptionPane.ERROR_MESSAGE
-                );
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // Updates model information if it changed, if model is not null.
-    // Returns true if the operation was succesfull.    
-    private boolean updateModelInformation() {
-        if (this.model == null)
-            return true;
-        String newInfo = this.infoArea.getText();
-        if (!newInfo.equals(this.model.getInformation())) {
-            try {
-                this.model.setInformation(this.infoArea.getText());
-                this.model.updateObservers();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(
-                  this.appFrame,
-                  e.getMessage(),
-                  "Node information could not be updated",
-                  JOptionPane.ERROR_MESSAGE
-                );
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Updates model title and information.
-     *
-     * @return true if the operation was succesfull.
-     */
-    public boolean updateModel() {
-        return this.updateModelTitle() && this.updateModelInformation();
     }
 }
