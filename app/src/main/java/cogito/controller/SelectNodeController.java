@@ -42,8 +42,8 @@ public class SelectNodeController extends GraphEditorMouseController {
         Node nodeClicked = this.view.getNodeAt(clickX, clickY);
         if (nodeClicked == null) // click on void
             return;
-        if (this.detailedNodeView.updateModel())
-            this.detailedNodeView.setModel(nodeClicked);
+        this.detailedNodeView.clearModel();
+        this.detailedNodeView.setModel(nodeClicked);
     }
 
     @Override
