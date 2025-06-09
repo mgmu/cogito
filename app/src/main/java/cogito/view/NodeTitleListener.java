@@ -48,9 +48,7 @@ class NodeTitleListener implements DocumentListener {
         String currTitle = this.model.getTitle();
         if (!currTitle.equals(newTitle)) {
             try {
-                System.out.println("setting this new title: [" + newTitle + "]");
                 this.model.setTitle(newTitle);
-                System.out.println("new node title: " + this.model.getTitle());
                 this.model.updateObservers();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(
