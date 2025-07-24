@@ -141,43 +141,79 @@ public class GraphView extends JPanel implements Observer {
         );
         g2d.setFont(increasedFont);
 
-        for (NodeView nv: this.nodeViews) {
-            if (this.isSelectionCircleVisible) {
-                int upperLeftX = nv.getModel().getX() - SELECTION_CIRCLE_RADIUS;
-                int upperLeftY =
-                    nv.getModel().getY() - SELECTION_CIRCLE_RADIUS + 2;
-                int diameter = SELECTION_CIRCLE_RADIUS * 2;
-                Shape selectionCircle = new Ellipse2D.Double(
-                  upperLeftX,
-                  upperLeftY,
-                  diameter,
-                  diameter
-                );
-                if (nv.equals(this.selectedNodeView)) {
-                    Color prevColor = g2d.getColor();
-                    g2d.setColor(Color.BLUE);
-                    g2d.draw(selectionCircle);
-                    g2d.setColor(prevColor);
-                } else
-                    g2d.draw(selectionCircle);
-            }
-            String title = nv.getModel().getTitle();
-            nv.setGraphics2D(g2d);
-            nv.computeTitleDimensions();
-            g2d.drawString(
-              title,
-              nv.getTitleBaseLineX(),
-              nv.getTitleBaseLineY()
-            );
-        }
+        for (NodeView nv: this.nodeViews)
+            this.drawNode(nv, g2d);
 
-        for (Pair<Point, Point> link: this.linkViews) {
-            // draw links
-            Point src = link.getKey();
-            Point dst = link.getValue();
-            Line2D.Double line = new Line2D.Double(src.x, src.y, dst.x, dst.y);
-            g2d.draw(line);
+        for (Pair<Point, Point> link: this.linkViews)
+            this.drawLink(link, g2d);
+    }
+
+    // called by paintComponent only
+    private void drawNode(NodeView nv, Graphics2D g2d) {
+        if (this.isSelectionCircleVisible) {
+            int upperLeftX = nv.getModel().getX() - SELECTION_CIRCLE_RADIUS;
+            int upperLeftY =
+                nv.getModel().getY() - SELECTION_CIRCLE_RADIUS + 2;
+            int diameter = SELECTION_CIRCLE_RADIUS * 2;
+            Shape selectionCircle = new Ellipse2D.Double(
+              upperLeftX,
+              upperLeftY,
+              diameter,
+              diameter
+            );
+            if (nv.equals(this.selectedNodeView)) {
+                Color prevColor = g2d.getColor();
+                g2d.setColor(Color.BLUE);
+                g2d.draw(selectionCircle);
+                g2d.setColor(prevColor);
+            } else
+                g2d.draw(selectionCircle);
         }
+        String title = nv.getModel().getTitle();
+        nv.setGraphics2D(g2d);
+        nv.computeTitleDimensions();
+        g2d.drawString(
+          title,
+          nv.getTitleBaseLineX(),
+          nv.getTitleBaseLineY()
+        );
+    }
+
+    private void drawLink(Pair<Point, Point> link, Graphics2D g2d) {
+        Point src = link.getKey();
+        Point dst = link.getValue();
+        Line2D.Double line = new Line2D.Double(src.x, src.y, dst.x, dst.y);
+        g2d.draw(line);
+
+        // draw arrow head, credits to papa
+        double L = 10.0;
+        
+        double dX = dst.x - src.x;
+        double dY = dst.y - src.y;
+
+        double vX = dX / Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
+        double vY = dY / Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
+
+        double d = L / Math.sqrt(2);
+
+        double nT = 0.5 * Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2)) - d;
+        double nX = src.x + nT * vX;
+        double nY = src.y + nT * vY;
+
+        double aX = nX - d * vY;
+        double aY = nY + d * vX;
+
+        double bX = nX + d * vY;
+        double bY = nY - d * vX;
+
+        double mX = (dst.x + src.x) / 2.0;
+        double mY = (dst.y + src.y) / 2.0;
+
+        Line2D.Double aToM = new Line2D.Double(aX, aY, mX, mY);
+        Line2D.Double bToM = new Line2D.Double(bX, bY, mX, mY);
+
+        g2d.draw(aToM);
+        g2d.draw(bToM);
     }
 
     /**
