@@ -141,16 +141,17 @@ public class GraphView extends JPanel implements Observer {
         );
         g2d.setFont(increasedFont);
 
-        for (NodeView nv: this.nodeViews)
-            this.drawNode(nv, g2d);
-
         for (Pair<Point, Point> link: this.linkViews)
             this.drawLink(link, g2d);
+
+        for (NodeView nv: this.nodeViews)
+            this.drawNode(nv, g2d);
     }
 
     // called by paintComponent only
     private void drawNode(NodeView nv, Graphics2D g2d) {
         if (this.isSelectionCircleVisible) {
+            g2d.setColor(Color.GRAY);
             int upperLeftX = nv.getModel().getX() - SELECTION_CIRCLE_RADIUS;
             int upperLeftY =
                 nv.getModel().getY() - SELECTION_CIRCLE_RADIUS + 2;
@@ -169,6 +170,7 @@ public class GraphView extends JPanel implements Observer {
             } else
                 g2d.draw(selectionCircle);
         }
+        g2d.setColor(Color.BLACK);
         String title = nv.getModel().getTitle();
         nv.setGraphics2D(g2d);
         nv.computeTitleDimensions();
@@ -183,6 +185,7 @@ public class GraphView extends JPanel implements Observer {
         Point src = link.getKey();
         Point dst = link.getValue();
         Line2D.Double line = new Line2D.Double(src.x, src.y, dst.x, dst.y);
+        g2d.setColor(Color.GRAY);
         g2d.draw(line);
 
         // draw arrow head, credits to papa
