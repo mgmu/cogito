@@ -1,6 +1,7 @@
 package cogito.controller;
 
 import java.util.Objects;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import cogito.model.Graph;
 import cogito.model.Node;
@@ -52,8 +53,17 @@ public class SelectNodeController extends GraphEditorMouseController {
         int mouseY = e.getY();
         if (this.pressedNode == null)
             return;
-        this.pressedNode.setX(mouseX);
-        this.pressedNode.setY(mouseY);
+        Dimension graphViewSize = super.view.getSize();
+        int w = graphViewSize.width;
+        int h = graphViewSize.height;
+        if (mouseX < 0)
+            this.pressedNode.setX(0);
+        else
+            this.pressedNode.setX(mouseX > w ? w : mouseX);
+        if (mouseY < 0)
+            this.pressedNode.setY(0);
+        else
+            this.pressedNode.setY(mouseY > h ? h : mouseY);
         this.model.updateObservers();
     }
 
