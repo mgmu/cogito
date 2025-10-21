@@ -21,6 +21,9 @@ public class GraphEditor extends Screen {
      */
     private static final int PREFERRED_HEIGHT = 1080;
 
+    private static final int PREFERRED_WIDTH_DETAILED_NODE_VIEW = 400;
+    private static final int PREFERRED_HEIGHT_EDIT_BUTTONS_BAR = 70;
+
     /**
      * The model to edit.
      */
@@ -51,13 +54,13 @@ public class GraphEditor extends Screen {
         this.model = model;
         this.graphView = new GraphView(
           this.model,
-          PREFERRED_WIDTH - 400,
-          PREFERRED_HEIGHT - 50,
+          PREFERRED_WIDTH - PREFERRED_WIDTH_DETAILED_NODE_VIEW,
+          PREFERRED_HEIGHT - PREFERRED_HEIGHT_EDIT_BUTTONS_BAR,
           frameManager.getAppFrame()
         );
         this.detailedNodeView = new DetailedNodeView(
-          400,
-          PREFERRED_HEIGHT - 50,
+          PREFERRED_WIDTH_DETAILED_NODE_VIEW,
+          PREFERRED_HEIGHT - PREFERRED_HEIGHT_EDIT_BUTTONS_BAR,
           frameManager.getAppFrame()
         );
         this.model.subscribe(this.graphView);
@@ -69,7 +72,7 @@ public class GraphEditor extends Screen {
             this.detailedNodeView,
             this.model,
             PREFERRED_WIDTH,
-            50,
+            PREFERRED_HEIGHT_EDIT_BUTTONS_BAR,
             this.frameManager
           ),
           BorderLayout.NORTH

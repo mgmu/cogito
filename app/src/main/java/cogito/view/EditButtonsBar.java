@@ -3,6 +3,7 @@ package cogito.view;
 import java.util.Objects;
 import java.awt.Dimension;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -18,7 +19,7 @@ import cogito.model.Graph;
 import cogito.util.DataManager;
 
 /**
- * Contains the buttons that edit the graph.
+ * Groups the control buttons of the graph view.
  */
 public class EditButtonsBar extends JPanel {
     
@@ -57,13 +58,16 @@ public class EditButtonsBar extends JPanel {
      */
     private FrameManager frameManager;
 
+    private JPanel graphButtonsPane;
+    private JPanel generalButtonsPane;
+
     // Error messages
     private static final String NULL_GRAPH_VIEW_ERROR =
         "GraphView can not be null";
     private static final String NULL_GRAPH_ERROR = "Graph can not be null";
 
     /**
-     * Creates a new buttons bar populated with supported edit operations.
+     * Creates a new bar populated with control buttons.
      *
      * @param graphView The view of the graph model, not null.
      * @param detailedNodeView The detailed node view of the graph editor.
@@ -85,8 +89,14 @@ public class EditButtonsBar extends JPanel {
         this.detailedNodeView = Objects.requireNonNull(detailedNodeView,
                 "Detailed node view can not be null");
         this.graphModel = Objects.requireNonNull(graphModel, NULL_GRAPH_ERROR);
+
         this.preferredWidth = width;
         this.preferredHeight = height;
+        this.graphButtonsPane = EditButtonsBar.createButtonsSubPane("Graph");
+        this.generalButtonsPane = EditButtonsBar.createButtonsSubPane(
+          "General"
+        );
+
         this.currentController = new AddNodeController(
           this.graphView,
           this.graphModel,
@@ -95,27 +105,13 @@ public class EditButtonsBar extends JPanel {
         this.currentController.enable();
         this.frameManager = frameManager;
 
-        // Add node button
-        JButton addNodeButton = new JButton("Add node");
-        addNodeButton.addActionListener(
-          al -> {
-              if (this.currentController != null) {
-                  if (this.currentController instanceof AddNodeController)
-                      return;
-                  this.currentController.disable();
-              }
-              this.currentController = new AddNodeController(
-                this.graphView,
-                this.graphModel,
-                this.detailedNodeView
-              );
-              this.currentController.enable();
-          }
-        );
-        this.add(addNodeButton);
+        // Layout
+        FlowLayout layout = new FlowLayout(FlowLayout.LEADING);
+        this.setLayout(layout);
+        this.setBorder(BorderFactory.createLoweredBevelBorder());
 
         // Select node button
-        JButton selectNodeButton = new JButton("Select/move node");
+        JButton selectNodeButton = new JButton("Select/move");
         selectNodeButton.addActionListener(
           al -> {
               if (this.currentController != null) {
@@ -131,28 +127,29 @@ public class EditButtonsBar extends JPanel {
               this.currentController.enable();
           }
         );
-        this.add(selectNodeButton);
+        this.graphButtonsPane.add(selectNodeButton);
 
-        // Link node button
-        JButton linkNodeButton = new JButton("Link node");
-        linkNodeButton.addActionListener(
+        // Add node button
+        JButton addNodeButton = new JButton("Add");
+        addNodeButton.addActionListener(
           al -> {
               if (this.currentController != null) {
-                  if (this.currentController instanceof LinkNodeController)
+                  if (this.currentController instanceof AddNodeController)
                       return;
                   this.currentController.disable();
               }
-              this.currentController = new LinkNodeController(
+              this.currentController = new AddNodeController(
                 this.graphView,
-                this.graphModel
+                this.graphModel,
+                this.detailedNodeView
               );
               this.currentController.enable();
           }
         );
-        this.add(linkNodeButton);
+        this.graphButtonsPane.add(addNodeButton);
 
         // Remove node button
-        JButton removeNodeButton = new JButton("Remove node");
+        JButton removeNodeButton = new JButton("Remove");
         removeNodeButton.addActionListener(
           al -> {
               if (this.currentController != null) {
@@ -168,27 +165,28 @@ public class EditButtonsBar extends JPanel {
               this.currentController.enable();
           }
         );
-        this.add(removeNodeButton);
+        this.graphButtonsPane.add(removeNodeButton);
 
-        // Save graph button
-        JButton saveGraphButton = new JButton("Save graph");
-        saveGraphButton.addActionListener(
-          al -> this.saveGraph()
-        );
-        this.add(saveGraphButton);
-
-        JButton backToMainScreenButton = new JButton("Back to main screen");
-        backToMainScreenButton.addActionListener(
+        // Link node button
+        JButton linkNodeButton = new JButton("Link");
+        linkNodeButton.addActionListener(
           al -> {
-              this.saveGraph();
-              this.frameManager.setCurrentScreen(
-                new MainScreen(this.frameManager)
+              if (this.currentController != null) {
+                  if (this.currentController instanceof LinkNodeController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new LinkNodeController(
+                this.graphView,
+                this.graphModel
               );
+              this.currentController.enable();
           }
         );
-        this.add(backToMainScreenButton);
+        this.graphButtonsPane.add(linkNodeButton);
 
-        JButton unlinkNodeButton = new JButton("Unlink node");
+        // Unlink nodes button
+        JButton unlinkNodeButton = new JButton("Unlink");
         unlinkNodeButton.addActionListener(
           al -> {
               if (this.currentController != null) {
@@ -203,9 +201,29 @@ public class EditButtonsBar extends JPanel {
               this.currentController.enable();
           }
         );
-        this.add(unlinkNodeButton);
-        
-        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        this.graphButtonsPane.add(unlinkNodeButton);
+
+        // Save graph button
+        JButton saveGraphButton = new JButton("Save");
+        saveGraphButton.addActionListener(
+          al -> this.saveGraph()
+        );
+        this.generalButtonsPane.add(saveGraphButton);
+
+        // Back to main screen button
+        JButton backToMainScreenButton = new JButton("Back to main screen");
+        backToMainScreenButton.addActionListener(
+          al -> {
+              this.saveGraph();
+              this.frameManager.setCurrentScreen(
+                new MainScreen(this.frameManager)
+              );
+          }
+        );
+        this.generalButtonsPane.add(backToMainScreenButton);
+
+        this.add(this.graphButtonsPane);
+        this.add(this.generalButtonsPane);
     }
 
     @Override
@@ -230,5 +248,15 @@ public class EditButtonsBar extends JPanel {
               JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    // creates a jpanel with a leading flow layout and a default titled border
+    // around it with the provided title
+    private static JPanel createButtonsSubPane(String title) {
+        JPanel pane = new JPanel();
+        FlowLayout layout = new FlowLayout(FlowLayout.LEADING);
+        pane.setLayout(layout);
+        pane.setBorder(BorderFactory.createTitledBorder(title));
+        return pane;
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.awt.Color;
 import javax.swing.SwingUtilities;
 import javax.swing.BorderFactory;
+import javax.swing.border.Border;
 import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -67,44 +68,43 @@ public class DetailedNodeView extends JPanel {
         this.nodeInformationListener = null;
         this.nodeTitleListener = null;
 
+        // Layout
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
 
-        // Title label
-        JLabel titleLabel = new JLabel("Title:");
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        this.add(titleLabel, constraints);
-
         // Title textfield
         this.titleField = new JTextField(NO_INFO);
         this.titleField.setEditable(false);
+        Border titleFieldBorder = BorderFactory.createTitledBorder("Title");
+        this.titleField.setBorder(titleFieldBorder);
         constraints.weightx = 1.0;
         constraints.gridwidth = 3;
         constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridy = 0;
         this.add(this.titleField, constraints);
-
-        // Information label
-        JLabel infoLabel = new JLabel("Information:");
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        this.add(infoLabel, constraints);
 
         // Information area
         this.infoArea = new JTextArea(NO_INFO);
         this.infoArea.setEditable(false);
         this.infoArea.setLineWrap(true);
         this.infoArea.setWrapStyleWord(true);
+        Border infoAreaBorder = BorderFactory.createTitledBorder("Information");
+        this.infoArea.setBorder(infoAreaBorder);
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         constraints.gridwidth = 3;
         constraints.gridx = 0;
-        constraints.gridy = 3;
+        constraints.gridy = 2;
         this.add(this.infoArea, constraints);
+
+
+        Border loweredBorder = BorderFactory.createLoweredBevelBorder();
+        Border emptyBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        this.setBorder(
+          BorderFactory.createCompoundBorder(loweredBorder, emptyBorder)
+        );
     }
 
     @Override

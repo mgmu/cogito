@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JFrame;
 import javax.swing.BorderFactory;
+import javax.swing.border.Border;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,8 +98,14 @@ public class GraphView extends JPanel implements Observer {
         this.loadNodeViews();
         this.linkViews = new ArrayList<>();
         this.loadLinkViews();
-        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         this.selectedNodeView = null;
+        
+        // Layout
+        Border loweredBorder = BorderFactory.createLoweredBevelBorder();
+        Border emptyBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+        this.setBorder(
+          BorderFactory.createCompoundBorder(loweredBorder, emptyBorder)
+        );
     }
 
     @Override
