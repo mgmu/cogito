@@ -49,7 +49,11 @@ public class AddNodeController extends GraphEditorMouseController {
         if (input == null)
             return;
         try {
-            Node newNode = new Node(input, centerX, centerY);
+            int[] graphPos = this.view.getGraphSpacePositionFromScreenPosition(
+              centerX,
+              centerY
+            );
+            Node newNode = new Node(input, graphPos[0], graphPos[1]);
             this.model.add(newNode);
             this.detailedNodeView.clearModel();
             this.detailedNodeView.setModel(newNode);

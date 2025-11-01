@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public class DataManager {
             return false;
 
         // create node dir for each node
-        List<Node> nodes = model.getNodes();
+        Set<Node> nodes = model.getNodes();
         for (Node node: nodes) {
             String nodeUuid = node.getUuid().toString();
             Path nodeDir = dir.resolve(nodeUuid);

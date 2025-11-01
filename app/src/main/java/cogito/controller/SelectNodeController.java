@@ -1,7 +1,7 @@
 package cogito.controller;
 
 import java.util.Objects;
-import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import cogito.model.Graph;
 import cogito.model.Node;
@@ -40,7 +40,16 @@ public class SelectNodeController extends GraphEditorMouseController {
     public void mouseClicked(MouseEvent e) {
         int clickX = e.getX();
         int clickY = e.getY();
-        Node nodeClicked = this.view.getNodeAt(clickX, clickY);
+        int[] posInGraph = this.view.getGraphSpacePositionFromScreenPosition(
+          clickX,
+          clickY
+        );
+        Node nodeClicked = this.model.getNodeAt(
+          posInGraph[0],
+          posInGraph[1],
+          GraphView.SELECTION_CIRCLE_RADIUS
+        );
+        System.out.println("nodeClicked is null ? " + (nodeClicked == null));
         if (nodeClicked == null) // click on void
             return;
         this.detailedNodeView.clearModel();
@@ -53,17 +62,25 @@ public class SelectNodeController extends GraphEditorMouseController {
         int mouseY = e.getY();
         if (this.pressedNode == null)
             return;
-        Dimension graphViewSize = super.view.getSize();
-        int w = graphViewSize.width;
-        int h = graphViewSize.height;
-        if (mouseX < 0)
-            this.pressedNode.setX(0);
-        else
-            this.pressedNode.setX(mouseX > w ? w : mouseX);
-        if (mouseY < 0)
-            this.pressedNode.setY(0);
-        else
-            this.pressedNode.setY(mouseY > h ? h : mouseY);
+        Rectangle rect = this.view.getRectangleView();
+        if (mouseX < 0) {
+            this.pressedNode.setX(rect.x);
+        } else {
+            // -1 to compensate the negative result of the test of interiority
+            // made by Rectangle.contains: if the point is strictly on the
+            // bounds, it is considered outside, then it is not displayed
+            this.pressedNode.setX(
+              rect.x + (mouseX > rect.width ? rect.width - 1 : mouseX)
+            );
+        }
+        if (mouseY < 0) {
+            this.pressedNode.setY(rect.y);
+        } else {
+            this.pressedNode.setY(
+              // -1: same reasons as above
+              rect.y + (mouseY > rect.height ? rect.height - 1: mouseY)
+            );
+        }
         this.model.updateObservers();
     }
 
@@ -71,7 +88,15 @@ public class SelectNodeController extends GraphEditorMouseController {
     public void mousePressed(MouseEvent e) {
         int pressX = e.getX();
         int pressY = e.getY();
-        Node pressedNode = this.view.getNodeAt(pressX, pressY);
+        int[] posInGraph = this.view.getGraphSpacePositionFromScreenPosition(
+          pressX,
+          pressY
+        );
+        Node pressedNode = this.model.getNodeAt(
+          posInGraph[0],
+          posInGraph[1],
+          GraphView.SELECTION_CIRCLE_RADIUS
+        );
         if (pressedNode == null)
             return;
         this.pressedNode = pressedNode;
@@ -86,11 +111,13 @@ public class SelectNodeController extends GraphEditorMouseController {
     public void enable() {
         super.enable();
         this.view.showSelectionCircles();
+        this.view.stopListeningMouseInput();
     }
 
     @Override
     public void disable() {
         super.disable();
         this.view.hideSelectionCircles();
+        this.view.listenMouseInput();
     }
 }

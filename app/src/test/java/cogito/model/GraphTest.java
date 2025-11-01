@@ -6,7 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 import cogito.TestUtils;
+import java.awt.Rectangle;
 
 class GraphTest {
     Graph sut;
@@ -166,7 +169,7 @@ class GraphTest {
         Node n2 = new Node("test");
         sut.add(n1);
         sut.add(n2);
-        List<Node> nodes = sut.getNodes();
+        Set<Node> nodes = sut.getNodes();
         assertEquals(2, nodes.size());
         assertTrue(nodes.contains(n1));
         assertTrue(nodes.contains(n2));
@@ -337,8 +340,96 @@ class GraphTest {
     }
 
     @Nested
+    class GetNodesInRectangle {
+
+        @Test
+        void WhenRectIsNullThenThrowsNPE() {
+            TestUtils.assertThrowsNPEWithMsg(
+              "Rectangle cannot be null",
+              () -> sut.getNodesInRectangle(null)
+            );
+        }
+
+        @Test
+        void WhenRectIsPointThenReturnsEmptySet() {
+            Set<Node> res = sut.getNodesInRectangle(new Rectangle(0, 0, 0, 0));
+            assertTrue(res.isEmpty());
+        }
+
+        @Test
+        void WhenRectCoversAllGraphReturnsAllNodesOfGraph() {
+            Set<Node> res = sut.getNodesInRectangle(
+              new Rectangle(0, 0, 1000, 1000)
+            );
+            assertEquals(sut.getNodes(), res);
+        }
+
+        @Test
+        void WhenRectCoversAllComplexGraphReturnsAllNodesOfGraph() {
+            sut.add(new Node("n1", 1, 2));
+            sut.add(new Node("n2", 3, 4));
+            sut.add(new Node("n3", 5, 6));
+            sut.add(new Node("n4", 7, 8));
+            Set<Node> res = sut.getNodesInRectangle(new Rectangle(0, 0, 9, 9));
+            assertEquals(sut.getNodes(), res);
+        }
+
+        @Test
+        void WhenRectIsAtPositionOfNodeReturnsEmptySet() {
+            sut.add(new Node("n1", 0, 0));
+            Set<Node> res = sut.getNodesInRectangle(new Rectangle(0, 0, 0, 0));
+            assertTrue(res.isEmpty());
+        }
+    }
+
+    @Test
+    void getSubGraphInRectangleWithNullRectangleThrowsNPE() {
+        TestUtils.assertThrowsNPEWithMsg("Rectangle cannot be null",
+                () -> sut.getSubGraphInRectangle(null));
+    }
+
+    @Test
+    void getSubGraphOnEmptyGraphReturnsEmptyMap() {
+        Map<Node, ArrayList<Node>> adj = sut.getSubGraphInRectangle(
+          new Rectangle());
+        assertTrue(adj.isEmpty());
+    }
+
+    @Test
+    void getSubGraphWithComplexGraph() {
+        // outside initially
+        Node n1 = new Node("n1", 1000, -500);
+        Node n2 = new Node("n2", 1500, -300);
+
+        // inside initially
+        Node n3 = new Node("n3", 500, 500);
+        Node n4 = new Node("n4", 1250, 750);
+
+        sut.add(n1);
+        sut.add(n2);
+        sut.add(n3);
+        sut.add(n4);
+
+        /*
+          n1    n2
+          |  \  +
+          +   + |
+          n3 -> n4
+         */
+        sut.link(n3, n4);
+        sut.link(n4, n2);
+        sut.link(n1, n3);
+        sut.link(n1, n4);
+
+        Rectangle r1 = new Rectangle(0, 0, 1920, 1080);
+        Map<Node, ArrayList<Node>> subgraph = sut.getSubGraphInRectangle(r1);
+        for (Node node: subgraph.keySet())
+            System.out.println(node.getTitle());
+        assertEquals(3, subgraph.keySet().size());
+    }
+
+    @Nested
     class NamedGraph {
-        Graph sut;
 
         @BeforeEach
         void createNamedGraph() {
