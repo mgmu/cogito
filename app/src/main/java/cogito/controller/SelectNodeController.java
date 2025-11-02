@@ -49,7 +49,6 @@ public class SelectNodeController extends GraphEditorMouseController {
           posInGraph[1],
           GraphView.SELECTION_CIRCLE_RADIUS
         );
-        System.out.println("nodeClicked is null ? " + (nodeClicked == null));
         if (nodeClicked == null) // click on void
             return;
         this.detailedNodeView.clearModel();
@@ -66,19 +65,15 @@ public class SelectNodeController extends GraphEditorMouseController {
         if (mouseX < 0) {
             this.pressedNode.setX(rect.x);
         } else {
-            // -1 to compensate the negative result of the test of interiority
-            // made by Rectangle.contains: if the point is strictly on the
-            // bounds, it is considered outside, then it is not displayed
             this.pressedNode.setX(
-              rect.x + (mouseX > rect.width ? rect.width - 1 : mouseX)
+              rect.x + (mouseX > rect.width ? rect.width : mouseX)
             );
         }
         if (mouseY < 0) {
             this.pressedNode.setY(rect.y);
         } else {
             this.pressedNode.setY(
-              // -1: same reasons as above
-              rect.y + (mouseY > rect.height ? rect.height - 1: mouseY)
+              rect.y + (mouseY > rect.height ? rect.height : mouseY)
             );
         }
         this.model.updateObservers();

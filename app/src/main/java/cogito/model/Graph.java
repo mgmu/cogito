@@ -355,9 +355,8 @@ public class Graph implements Observable {
      * Returns the set of nodes whose position in the graph space is within the
      * bounds of rect.
      *
-     * If the graph is empty or if rect represents a point (when width = height
-     * = 0), the set returned is empty. If the node position is on an edge of
-     * the rectangle, it is not considered within bounds.
+     * If a node lays on the edge of the rectangle, it IS considered within
+     * bounds (not the case with Rectangle.contains() method).
      *
      * @param rect A non-null rectangle.
      * @return The set of nodes within the bounds of rect.
@@ -366,10 +365,35 @@ public class Graph implements Observable {
         Objects.requireNonNull(rect, "Rectangle cannot be null");
         Set<Node> res = new HashSet<>();
         for (Node node: this.adj.keySet()) {
-            if (rect.contains(node.getX(), node.getY()))
+            if (rectContains(rect, node.getX(), node.getY())) {
                 res.add(node);
+            }
         }
         return res;
+    }
+
+    // Same as java.awt.Rectangle.contains() but returns true if (x, y) in on an
+    // edge of the rectangle.
+    private static boolean rectContains(Rectangle rect, int x, int y) {
+        if (rect.contains(x, y))
+            return true;
+        // xy on top edge
+        if (y == rect.y && x >= rect.x && x <= rect.x + rect.width)
+            return true;
+        // xy on left edge
+        if (x == rect.x && y >= rect.y && y <= rect.y + rect.height)
+            return true;
+        // xy on right edge
+        if (x == rect.x + rect.width
+                && y >= rect.y
+                && y <= rect.y + rect.height)
+            return true;
+        // xy on bottom edge
+        if (y == rect.y + rect.height
+                && x >= rect.x
+                && x <= rect.x + rect.width)
+            return true;
+        return false;
     }
 
     /**
