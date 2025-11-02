@@ -33,7 +33,15 @@ public class UnlinkNodeController extends GraphEditorMouseController {
     public void mouseClicked(MouseEvent e) {
         int clickX = e.getX();
         int clickY = e.getY();
-        Node nodeClicked = this.view.getNodeAt(clickX, clickY);
+        int[] posInGraph = this.view.getGraphSpacePositionFromScreenPosition(
+          clickX,
+          clickY
+        );
+        Node nodeClicked = this.model.getNodeAt(
+          posInGraph[0],
+          posInGraph[1],
+          GraphView.SELECTION_CIRCLE_RADIUS
+        );
         if (nodeClicked == null) { // click on void
             this.setSrcAndDstToNull();
             this.view.hideSelectedCircle();

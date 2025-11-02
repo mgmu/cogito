@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Set;
+import java.util.HashSet;
 import cogito.view.Observer;
+import java.awt.Rectangle;
 
 /**
  * Encapsulates relations between Nodes in a graph space.
@@ -27,7 +29,6 @@ public class Graph implements Observable {
     // The observers subscribed to the updates of this Graph.
     private final List<Observer> observers;
 
-    // The name of this Graph.
     private String name;
 
     // Error messages
@@ -258,15 +259,14 @@ public class Graph implements Observable {
     }
 
     /**
-     * Returns a list of the nodes in this Graph.
+     * Returns the nodes of this Graph.
      *
-     * @return a list of the nodes in this Graph.
+     * @return The set of nodes of this Graph.
      */
-    public List<Node> getNodes() {
+    public Set<Node> getNodes() {
         Set<Node> nodes = this.adj.keySet();
-        List<Node> nodesAsList = new ArrayList<>();
-        nodesAsList.addAll(nodes);
-        return nodesAsList;
+        Set<Node> ret = new HashSet<>(nodes);
+        return ret;
     }
 
     /**
@@ -349,5 +349,87 @@ public class Graph implements Observable {
                 return node;
         }
         return null;
+    }
+
+    /**
+     * Returns the set of nodes whose position in the graph space is within the
+     * bounds of rect.
+     *
+     * If a node lays on the edge of the rectangle, it IS considered within
+     * bounds (not the case with Rectangle.contains() method).
+     *
+     * @param rect A non-null rectangle.
+     * @return The set of nodes within the bounds of rect.
+     */
+    public Set<Node> getNodesInRectangle(Rectangle rect) {
+        Objects.requireNonNull(rect, "Rectangle cannot be null");
+        Set<Node> res = new HashSet<>();
+        for (Node node: this.adj.keySet()) {
+            if (rectContains(rect, node.getX(), node.getY())) {
+                res.add(node);
+            }
+        }
+        return res;
+    }
+
+    // Same as java.awt.Rectangle.contains() but returns true if (x, y) in on an
+    // edge of the rectangle.
+    private static boolean rectContains(Rectangle rect, int x, int y) {
+        if (rect.contains(x, y))
+            return true;
+        // xy on top edge
+        if (y == rect.y && x >= rect.x && x <= rect.x + rect.width)
+            return true;
+        // xy on left edge
+        if (x == rect.x && y >= rect.y && y <= rect.y + rect.height)
+            return true;
+        // xy on right edge
+        if (x == rect.x + rect.width
+                && y >= rect.y
+                && y <= rect.y + rect.height)
+            return true;
+        // xy on bottom edge
+        if (y == rect.y + rect.height
+                && x >= rect.x
+                && x <= rect.x + rect.width)
+            return true;
+        return false;
+    }
+
+    /**
+     * Returns the subgraph of this graph within the bounds of the given
+     * rectangle as a map of adjacencies.
+     *
+     * The graph returned is a subgraph of this graph such that each of its
+     * nodes verifies one or more of the following properties:
+     * - the position of the node is within the bounds of rect
+     * - the node is not within the bounds of rect but at least one node that is
+     * has a link to it
+     * - the node is not within the bounds of rect but it has a link to a node
+     * that is.
+     *
+     * @param rect A non-null rectangle that represents a rectangular portion of
+     * the graph space.
+     * @return A subgraph of this graph that follows the aformentioned
+     * properties, as a map of adjacencies.
+     */
+    public Map<Node, ArrayList<Node>> getSubGraphInRectangle(Rectangle rect) {
+        Objects.requireNonNull(rect, "Rectangle cannot be null");
+        Set<Node> visibleNodes = this.getNodesInRectangle(rect);
+        Map<Node, ArrayList<Node>> subgraph = new HashMap<>();
+        for (Node node: visibleNodes)
+            subgraph.put(node, this.adj.get(node));
+        for (Node node: this.adj.keySet()) {
+            if (subgraph.keySet().contains(node))
+                continue;
+            ArrayList<Node> visibleNeighbors = new ArrayList<>();
+            for (Node neighbor: this.getNodesLinkedTo(node)) {
+                if (visibleNodes.contains(neighbor))
+                    visibleNeighbors.add(neighbor);
+            }
+            if (!visibleNeighbors.isEmpty())
+                subgraph.put(node, visibleNeighbors);
+        }
+        return subgraph;
     }
 }

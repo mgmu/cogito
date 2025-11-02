@@ -15,6 +15,7 @@ import cogito.controller.SelectNodeController;
 import cogito.controller.LinkNodeController;
 import cogito.controller.RemoveNodeController;
 import cogito.controller.UnlinkNodeController;
+import cogito.controller.ExplorationController;
 import cogito.model.Graph;
 import cogito.util.DataManager;
 
@@ -111,7 +112,7 @@ public class EditButtonsBar extends JPanel {
         this.setBorder(BorderFactory.createLoweredBevelBorder());
 
         // Select node button
-        JButton selectNodeButton = new JButton("Select/move");
+        JButton selectNodeButton = new JButton("Select");
         selectNodeButton.addActionListener(
           al -> {
               if (this.currentController != null) {
@@ -202,6 +203,24 @@ public class EditButtonsBar extends JPanel {
           }
         );
         this.graphButtonsPane.add(unlinkNodeButton);
+
+        // Explore graph space button
+        JButton exploreButton = new JButton("Explore");
+        exploreButton.addActionListener(
+          al -> {
+              if (this.currentController != null) {
+                  if (this.currentController instanceof ExplorationController)
+                      return;
+                  this.currentController.disable();
+              }
+              this.currentController = new ExplorationController(
+                this.graphView,
+                this.graphModel
+              );
+              this.currentController.enable();
+          }
+        );
+        this.graphButtonsPane.add(exploreButton);
 
         // Save graph button
         JButton saveGraphButton = new JButton("Save");

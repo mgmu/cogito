@@ -8,6 +8,7 @@ import javax.swing.border.Border;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -20,6 +21,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.FontMetrics;
 import java.awt.Font;
 import java.awt.BasicStroke;
+import java.awt.Rectangle;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
 import cogito.util.Pair;
 import cogito.model.Graph;
 import cogito.model.Node;
@@ -30,50 +35,51 @@ import cogito.model.Node;
  * This view represents the nodes as circles with their title inside and the
  * relations between the nodes.
  */
-public class GraphView extends JPanel implements Observer {
+public class GraphView extends JPanel implements Observer,
+                                                 MouseMotionListener,
+                                                 MouseListener {
 
-    /**
-     * The model represented by this GraphView.
-     */
+    // The model represented by this GraphView.
     private Graph model;
 
-    /**
-     * The node views of the nodes of the graph model.
-     */
+    // The part of the graph that is visible in the rectangle view, as a Graph.
+    private Map<Node, ArrayList<Node>> visibleModel;
+
+    // The node views of the nodes of the graph model.
     private List<NodeView> nodeViews;
 
-    /**
-     * The link views of the links of the graph model.
-     */
+    // The link views of the links of the graph model.
     private ArrayList<Pair<Point, Point>> linkViews;
 
-    /**
-     * The selected node view.
-     */
+    // The selected node view.
     private NodeView selectedNodeView;
 
-    /**
-     * Preferred width of this GraphView.
-     */
+    //Preferred width of this GraphView.
     private final int preferredWidth;
 
-    /**
-     * Preferred height of this GraphView.
-     */
+    // Preferred height of this GraphView.
     private final int preferredHeight;
 
-    /**
-     * Indicates if the selection circles are visible.
-     */
+    // Indicates if the selection circles around all displayed nodes are
+    // visible.
     private boolean isSelectionCircleVisible;
 
-    /**
-     * The frame of the app.
-     */
+    // The frame of the app.
     private JFrame appFrame;
 
+    // The visible part of the graph space of this graph view model.
+    private Rectangle rect;
+
+    // exploration variables
+    private int originX = 0;
+    private int originY = 0;
+    private int endX = 0;
+    private int endY = 0;
+    private int[] translationVector = new int[2];
+    private Rectangle beginTransRect; // current rectangle at beginning of trans
+
     // The radius of the selection circle.
-    private static final int SELECTION_CIRCLE_RADIUS = 10;
+    public static final int SELECTION_CIRCLE_RADIUS = 10;
 
     // Error messages.
     private static final String NULL_OBJECT_ERROR = "Object can not be null";
@@ -90,6 +96,13 @@ public class GraphView extends JPanel implements Observer {
      */
     public GraphView(Graph model, int width, int height, JFrame appFrame) {
         this.model = Objects.requireNonNull(model, "Graph can not be null");
+
+        // Rectangle view
+        this.rect = new Rectangle(0, 0, width, height);
+        this.beginTransRect = new Rectangle(this.rect);
+
+        this.visibleModel = this.model.getSubGraphInRectangle(this.rect);
+
         this.preferredWidth = width;
         this.preferredHeight = height;
         this.isSelectionCircleVisible = false;
@@ -106,6 +119,8 @@ public class GraphView extends JPanel implements Observer {
         this.setBorder(
           BorderFactory.createCompoundBorder(loweredBorder, emptyBorder)
         );
+
+        this.listenMouseInput();
     }
 
     @Override
@@ -114,22 +129,27 @@ public class GraphView extends JPanel implements Observer {
         if (!(object instanceof Graph))
             throw new IllegalArgumentException(NOT_A_GRAPH_ERROR);
         this.model = (Graph)object;
-        for (NodeView nv: this.nodeViews) {
-            nv.getModel().unsubscribe(nv);
-        }
-        this.nodeViews.clear();
-        this.loadNodeViews();
-        this.linkViews.clear();
-        this.loadLinkViews();
-        this.repaint();
+        this.updateRectangleView(this.rect);
     }
 
     // Loads the node views
     private void loadNodeViews() {
-        for (Node node: this.model.getNodes()) {
+        for (Node node: this.visibleModel.keySet()) {
             NodeView nv = new NodeView(node, this);
             node.subscribe(nv);
             this.nodeViews.add(nv);
+        }
+    }
+
+    // Populates linkViews with segments corresponding to node links
+    private void loadLinkViews() {
+        for (Node node: this.visibleModel.keySet()) {
+            ArrayList<Node> neighbors = this.visibleModel.get(node);
+            Point src = new Point(node.getX(), node.getY());
+            for (Node neighbor: neighbors) {
+                Point dst = new Point(neighbor.getX(), neighbor.getY());
+                this.linkViews.add(new Pair<>(src, dst));
+            }
         }
     }
 
@@ -159,9 +179,13 @@ public class GraphView extends JPanel implements Observer {
     private void drawNode(NodeView nv, Graphics2D g2d) {
         if (this.isSelectionCircleVisible) {
             g2d.setColor(Color.GRAY);
-            int upperLeftX = nv.getModel().getX() - SELECTION_CIRCLE_RADIUS;
-            int upperLeftY =
-                nv.getModel().getY() - SELECTION_CIRCLE_RADIUS + 2;
+            int upperLeftX = nv.getModel().getX()
+                - this.rect.x // rect view might have moved
+                - SELECTION_CIRCLE_RADIUS;  // radius of the selection circle
+            int upperLeftY = nv.getModel().getY()
+                - this.rect.y
+                - SELECTION_CIRCLE_RADIUS 
+                + 2; // ?
             int diameter = SELECTION_CIRCLE_RADIUS * 2;
             Shape selectionCircle = new Ellipse2D.Double(
               upperLeftX,
@@ -183,15 +207,20 @@ public class GraphView extends JPanel implements Observer {
         nv.computeTitleDimensions();
         g2d.drawString(
           title,
-          nv.getTitleBaseLineX(),
-          nv.getTitleBaseLineY()
+          nv.getTitleBaseLineX() - this.rect.x,
+          nv.getTitleBaseLineY() - this.rect.y
         );
     }
 
     private void drawLink(Pair<Point, Point> link, Graphics2D g2d) {
         Point src = link.getKey();
         Point dst = link.getValue();
-        Line2D.Double line = new Line2D.Double(src.x, src.y, dst.x, dst.y);
+        Line2D.Double line = new Line2D.Double(
+          src.x - this.rect.x,
+          src.y - this.rect.y,
+          dst.x - this.rect.x,
+          dst.y - this.rect.y
+        );
         g2d.setColor(Color.GRAY);
         g2d.draw(line);
 
@@ -207,8 +236,8 @@ public class GraphView extends JPanel implements Observer {
         double d = L / Math.sqrt(2);
 
         double nT = 0.5 * Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2)) - d;
-        double nX = src.x + nT * vX;
-        double nY = src.y + nT * vY;
+        double nX = (src.x - this.rect.x) + nT * vX;
+        double nY = (src.y - this.rect.y) + nT * vY;
 
         double aX = nX - d * vY;
         double aY = nY + d * vX;
@@ -216,8 +245,8 @@ public class GraphView extends JPanel implements Observer {
         double bX = nX + d * vY;
         double bY = nY - d * vX;
 
-        double mX = (dst.x + src.x) / 2.0;
-        double mY = (dst.y + src.y) / 2.0;
+        double mX = (dst.x + src.x - 2 * this.rect.x) / 2.0;
+        double mY = (dst.y + src.y - 2 * this.rect.y) / 2.0;
 
         Line2D.Double aToM = new Line2D.Double(aX, aY, mX, mY);
         Line2D.Double bToM = new Line2D.Double(bX, bY, mX, mY);
@@ -235,31 +264,21 @@ public class GraphView extends JPanel implements Observer {
         return this.appFrame;
     }
 
-    // Populates linkViews with segments corresponding to node links
-    private void loadLinkViews() {
-        for (Node node: this.model.getNodes()) {
-            List<Node> neighbors = this.model.getNodesLinkedTo(node);
-            Point src = new Point(node.getX(), node.getY());
-            for (Node neighbor: neighbors) {
-                Point dst = new Point(neighbor.getX(), neighbor.getY());
-                this.linkViews.add(new Pair<>(src, dst));
-            }
-        }
-    }
-
     /**
-     * Returns the node at given location.
+     * Returns the position in the graph space that corresponds to the given
+     * screen position.
      *
-     * The location is a point inside the circle around the center of the title.
-     * If there are multiple candidates, the first one encountered in the
-     * traversal of the nodes of the model is returned.
-     *
-     * @param x The x coordinate of the click.
-     * @param y The y coordinate of the click.
-     * @return The Node clicked on, or null if the click was in the void.
+     * @param x The x coordinate of the screen position.
+     * @param y The y coordinate of the screen position.
+     * @return An array of size 2 where the value at index 0 is the X coordinate
+     * in the graph space and the value at index 1 is the Y coordinate in the
+     * graph space.
      */
-    public Node getNodeAt(int x, int y) {
-        return this.model.getNodeAt(x, y, SELECTION_CIRCLE_RADIUS);
+    public int[] getGraphSpacePositionFromScreenPosition(int x, int y) {
+        int[] res = new int[2];
+        res[0] = x + this.rect.x;
+        res[1] = y + this.rect.y;
+        return res;
     }
 
     /**
@@ -303,5 +322,102 @@ public class GraphView extends JPanel implements Observer {
     public void hideSelectedCircle() {
         this.selectedNodeView = null;
         this.repaint();
+    }
+
+    /**
+     * Returns a copy of this GraphView's rectangle view.
+     *
+     * @return A Rectangle that is a copy of this GraphView's rectangle view.
+     */
+    public Rectangle getRectangleView() {
+        return new Rectangle(this.rect);
+    }
+
+    // Unsubscribes all node views, clears all node views and link views and
+    // reloads them from the subgraph.
+    private void refresh() {
+        for (NodeView nv: this.nodeViews) {
+            nv.getModel().unsubscribe(nv);
+        }
+        this.nodeViews.clear();
+        this.loadNodeViews();
+        this.linkViews.clear();
+        this.loadLinkViews();
+        this.repaint();
+    }
+
+    /**
+     * Updates the rectangle view and this graph view accordingly.
+     */
+    public void updateRectangleView(Rectangle newRect) {
+        this.rect = new Rectangle(newRect);
+        this.visibleModel = this.model.getSubGraphInRectangle(this.rect);
+        this.refresh();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // does nothing
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // does nothing
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // does nothing
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        this.originX = e.getX();
+        this.originY = e.getY();
+        this.beginTransRect = new Rectangle(this.rect);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        this.translationVector[0] = 0;
+        this.translationVector[1] = 0;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        this.endX = e.getX();
+        this.endY = e.getY();
+        this.translationVector[0] = -(this.endX - this.originX);
+        this.translationVector[1] = -(this.endY - this.originY);
+        // update rectangle view
+        Rectangle curr = new Rectangle(this.beginTransRect);
+        curr.translate(
+          this.translationVector[0],
+          this.translationVector[1]
+        );
+        this.updateRectangleView(curr);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        // does nothing
+    }
+
+    /**
+     * Adds this GraphView as a mouse listener and mouse motion listener to this
+     * GraphView.
+     */
+    public void listenMouseInput() {
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+    }
+
+    /**
+     * Removes this GraphView from the mouse listeners and mouse motion
+     * listeners of this GraphView.
+     */
+    public void stopListeningMouseInput() {
+        this.removeMouseListener(this);
+        this.removeMouseMotionListener(this);
     }
 }
