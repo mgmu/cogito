@@ -9,6 +9,8 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    id("org.sonarqube") version "6.3.1.5724"
+    jacoco
 }
 
 repositories {
@@ -19,7 +21,8 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
-
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    
     // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
 }
@@ -32,4 +35,16 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.test {
+    // report is always generated after tests run
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+    }
 }

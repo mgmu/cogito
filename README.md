@@ -62,3 +62,21 @@ This software is actively maintained, on a weekly basis.
 
 This software has been tested on Ubuntu 22.04 and nothing more. Feel free to
 open an issue if something wrong happens, it is still very rudimentary.
+
+## Development
+### SonarQube
+1. Launch the SonarQube server:
+```
+$ path/to/sonarqube/bin/<OS>/sonar.sh console
+```
+
+2. Start static analysis with Gradle task:
+```
+$ ./gradlew sonar \
+      -Dsonar.projectKey=cogito \
+      -Dsonar.projectName='cogito' \
+      -Dsonar.host.url=http://localhost:9000 \
+      -Dsonar.token=<TOKEN>
+```
+
+`<TOKEN>` must be replaced with the token generated with SonarQube.
