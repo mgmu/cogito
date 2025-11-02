@@ -375,10 +375,11 @@ class GraphTest {
         }
 
         @Test
-        void WhenRectIsAtPositionOfNodeReturnsEmptySet() {
-            sut.add(new Node("n1", 0, 0));
+        void WhenRectIsAtPositionOfNodeReturnsSetWithThatNode() {
+            Node n1 = new Node("n1", 0, 0);
+            sut.add(n1);
             Set<Node> res = sut.getNodesInRectangle(new Rectangle(0, 0, 0, 0));
-            assertTrue(res.isEmpty());
+            assertTrue(res.contains(n1));
         }
     }
 
